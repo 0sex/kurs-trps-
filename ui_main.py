@@ -762,7 +762,7 @@ class MainWindow(QMainWindow):
         self.results_table.setColumnWidth(3, 150)  # Форма
         self.results_table.setColumnWidth(4, 180)  # Производитель
         self.results_table.setColumnWidth(5, 200)  # Противопоказания
-        self.results_table.setColumnWidth(6, 300)  # Описание
+        self.results_table.setColumnWidth(6, 350)  # Описание (увеличена ширина)
         self.results_table.setColumnWidth(7, 100)  # Цена
         self.results_table.setSelectionBehavior(QTableWidget.SelectRows)
         self.results_table.setEditTriggers(QTableWidget.NoEditTriggers)
@@ -936,7 +936,6 @@ class MainWindow(QMainWindow):
             # Description
             description = drug.get('description', '') or ''
             description_item = QTableWidgetItem(description)
-            # Enable word wrap for description
             description_item.setTextAlignment(Qt.AlignLeft | Qt.AlignTop)
             self.results_table.setItem(row, 6, description_item)
             
@@ -947,6 +946,22 @@ class MainWindow(QMainWindow):
             # Set numeric value for sorting
             price_item.setData(Qt.EditRole, drug['price'])
             self.results_table.setItem(row, 7, price_item)
+        
+        # Adjust row heights for descriptions after all items are set
+        # This ensures column widths are already set
+        for row in range(len(results)):
+            description_item = self.results_table.item(row, 6)
+            if description_item:
+                description = description_item.text()
+                if description:
+                    # Use column width (default 350) for calculation
+                    col_width = self.results_table.columnWidth(6) or 350
+                    # Approximate: ~10 pixels per character, but account for word wrapping
+                    chars_per_line = max(35, col_width // 10)
+                    estimated_lines = max(1, (len(description) + chars_per_line - 1) // chars_per_line)
+                    # Set row height: minimum 30, maximum 120, ~25 pixels per line
+                    row_height = max(30, min(120, estimated_lines * 25 + 10))
+                    self.results_table.setRowHeight(row, row_height)
         
         # Re-enable sorting after populating
         self.results_table.setSortingEnabled(True)
