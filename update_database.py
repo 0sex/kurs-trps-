@@ -26,13 +26,8 @@ def update_database():
     
     # Очищаем базу данных
     print("\nОчистка базы данных...")
-    conn = db._get_connection()
-    cursor = conn.cursor()
-    cursor.execute("DELETE FROM drugs")
-    cursor.execute("DELETE FROM analog_links")
-    conn.commit()
-    conn.close()
-    print("✓ База данных очищена")
+    db.force_update_database()
+    print("✓ База данных очищена и переинициализирована")
     
     # Заполняем базу данных
     print("\nЗаполнение базы данных новыми данными...")

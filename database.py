@@ -51,6 +51,7 @@ class Database:
                 manufacturer TEXT NOT NULL,
                 price REAL NOT NULL,
                 contraindications TEXT DEFAULT '',
+                description TEXT DEFAULT '',
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         """)
@@ -440,6 +441,23 @@ class Database:
             return [row[0] for row in cursor.fetchall()]
         finally:
             conn.close()
+    
+    def force_update_database(self):
+        """Force update the database by dropping and recreating all tables."""
+        conn = self._get_connection()
+        cursor = conn.cursor()
+        
+        # Drop existing tables
+        cursor.execute("DROP TABLE IF EXISTS analog_links")
+        cursor.execute("DROP TABLE IF EXISTS drugs")
+        conn.commit()
+        conn.close()
+        
+        # Reinitialize database
+        self._initialize_database()
+        
+        # Populate with fresh data
+        self.populate_sample_data()
     
     def populate_sample_data(self):
         # Load data from JSON file

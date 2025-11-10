@@ -5,6 +5,8 @@ This module defines the graphical user interface using PyQt5.
 """
 
 import sys
+from user_auth import UserAuth
+from login_dialog import LoginDialog
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QPushButton, QLabel, QLineEdit, QTableWidget, QTableWidgetItem,
@@ -240,9 +242,66 @@ class MainWindow(QMainWindow):
         """Initialize main window."""
         super().__init__()
         self.init_database()
+        self.auth = UserAuth()
         self.setup_ui()
         self.load_filter_options()
         self.load_all_drugs()
+        
+        # Initially set as regular user
+        self.auth.current_user = {"username": "user", "role": "user"}
+        self.update_ui_for_role()
+        
+    def show_login(self) -> bool:
+        """Show login dialog and handle authentication."""
+        dialog = LoginDialog(self)
+        if dialog.exec_() == QDialog.Accepted:
+            username, password = dialog.get_credentials()
+            if self.auth.login(username, password):
+                self.update_ui_for_role()
+                return True
+            else:
+                QMessageBox.warning(self, "Ошибка", "Неверное имя пользователя или пароль")
+                return self.show_login()
+        return False
+        
+    def toggle_admin_login(self):
+        """Handle admin login/logout."""
+        if not self.auth.is_admin():
+            # Try to log in as admin
+            dialog = LoginDialog(self)
+            if dialog.exec_() == QDialog.Accepted:
+                username, password = dialog.get_credentials()
+                if self.auth.login(username, password):
+                    if self.auth.is_admin():
+                        self.update_ui_for_role()
+                    else:
+                        QMessageBox.warning(self, "Ошибка", "Требуются права администратора")
+                        self.auth.current_user = {"username": "user", "role": "user"}
+                        self.update_ui_for_role()
+                else:
+                    QMessageBox.warning(self, "Ошибка", "Неверное имя пользователя или пароль")
+        else:
+            # Log out admin
+            self.auth.current_user = {"username": "user", "role": "user"}
+            self.update_ui_for_role()
+    
+    def update_ui_for_role(self):
+        """Update UI elements based on user role."""
+        is_admin = self.auth.is_admin()
+        role_text = "администратор" if is_admin else "пользователь"
+        
+        # Update menu items
+        menubar = self.menuBar()
+        file_menu = menubar.findChild(QMenu, "Файл")
+        if file_menu:
+            for action in file_menu.actions():
+                if action.text() in ["Добавить препарат", "Редактировать препарат", "Удалить препарат"]:
+                    action.setEnabled(is_admin)
+        
+        # Update login/logout action text
+        self.login_action.setText("Выход из админ. режима" if is_admin else "Вход для администратора")
+        
+        self.statusBar().showMessage(f"Режим работы: {role_text}")
     
     def init_database(self):
         """Initialize database and populate sample data."""
@@ -755,6 +814,9 @@ class MainWindow(QMainWindow):
         self.results_table.setSortingEnabled(True)
         # Make columns resizable (Interactive mode)
         self.results_table.horizontalHeader().setSectionResizeMode(QHeaderView.Interactive)
+        
+        # Set word wrap for description column
+        self.results_table.setWordWrap(True)
         # Set default column widths
         self.results_table.setColumnWidth(0, 60)  # Выбор
         self.results_table.setColumnWidth(1, 180)  # Название
@@ -803,6 +865,13 @@ class MainWindow(QMainWindow):
         refresh_action = QAction("Показать все препараты", self)
         refresh_action.triggered.connect(self.load_all_drugs)
         file_menu.addAction(refresh_action)
+        
+        file_menu.addSeparator()
+        
+        # Add login/logout action
+        self.login_action = QAction("Вход для администратора", self)
+        self.login_action.triggered.connect(self.toggle_admin_login)
+        file_menu.addAction(self.login_action)
         
         file_menu.addSeparator()
         
@@ -869,6 +938,10 @@ class MainWindow(QMainWindow):
     def load_all_drugs(self):
         """Load all drugs from database and apply filters."""
         self.apply_filters()
+        
+        # After loading drugs, adjust the description column width
+        self.results_table.setColumnWidth(6, 350)  # Make description column wider
+        self.results_table.resizeRowsToContents()  # Adjust row heights automatically
     
     def search_analogs(self):
         """Perform analog search based on input and filters."""
@@ -934,10 +1007,20 @@ class MainWindow(QMainWindow):
             self.results_table.setItem(row, 5, QTableWidgetItem(contraindications))
             
             # Description
-            description = drug.get('description', '') or ''
-            description_item = QTableWidgetItem(description)
+            description = drug.get('description', '')
+            description_item = QTableWidgetItem(description if description else '')
             description_item.setTextAlignment(Qt.AlignLeft | Qt.AlignTop)
             self.results_table.setItem(row, 6, description_item)
+            
+            # Calculate row height based on description text
+            metrics = self.results_table.fontMetrics()
+            description_width = self.results_table.columnWidth(6) - 20  # Account for padding
+            text_height = metrics.boundingRect(
+                0, 0, description_width, 1000,
+                Qt.TextWordWrap | Qt.AlignLeft | Qt.AlignTop,
+                description if description else ''
+            ).height()
+            self.results_table.setRowHeight(row, max(40, text_height + 20))
             
             # Price - store numeric value for proper sorting
             price_item = QTableWidgetItem()
@@ -1083,6 +1166,9 @@ class MainWindow(QMainWindow):
     
     def add_drug(self):
         """Show add drug dialog."""
+        if not self.auth.is_admin():
+            QMessageBox.warning(self, "Ошибка", "Только администратор может добавлять препараты")
+            return
         dialog = AddDrugDialog(self)
         if dialog.exec_() == QDialog.Accepted:
             data = dialog.get_data()
@@ -1108,6 +1194,9 @@ class MainWindow(QMainWindow):
     
     def edit_drug(self):
         """Show edit drug dialog."""
+        if not self.auth.is_admin():
+            QMessageBox.warning(self, "Ошибка", "Только администратор может редактировать препараты")
+            return
         # Get currently selected drug from results or show list
         if self.results_table.rowCount() == 0:
             QMessageBox.warning(self, "Внимание", 
@@ -1159,6 +1248,9 @@ class MainWindow(QMainWindow):
     
     def delete_drug(self):
         """Delete selected drug."""
+        if not self.auth.is_admin():
+            QMessageBox.warning(self, "Ошибка", "Только администратор может удалять препараты")
+            return
         if self.results_table.rowCount() == 0:
             QMessageBox.warning(self, "Внимание", 
                               "Нет данных для удаления. Выполните поиск.")
