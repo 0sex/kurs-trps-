@@ -1,12 +1,8 @@
-"""
-Main UI module for the drug analog search application.
 
-This module defines the graphical user interface using PyQt5.
-"""
 
 import sys
 from user_auth import UserAuth
-from login_dialog import LoginDialog
+from interactions import InteractionWindow
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QPushButton, QLabel, QLineEdit, QTableWidget, QTableWidgetItem,
@@ -21,7 +17,78 @@ import csv
 import json
 from datetime import datetime
 
-
+class LoginDialog(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Вход в систему")
+        self.setModal(True)
+        self.resize(300, 150)
+        self.setup_ui()
+        
+    def setup_ui(self):
+        """Create UI elements."""
+        layout = QFormLayout()
+        layout.setSpacing(15)
+        layout.setContentsMargins(20, 20, 20, 20)
+        layout.setSpacing(15)
+        layout.setContentsMargins(20, 20, 20, 20)
+        
+        self.username_edit = QLineEdit()
+        self.username_edit.setPlaceholderText("Введите имя пользователя")
+        self.username_edit.setMinimumHeight(30)
+        
+        self.password_edit = QLineEdit()
+        self.password_edit.setPlaceholderText("Введите пароль")
+        self.password_edit.setEchoMode(QLineEdit.Password)
+        self.password_edit.setMinimumHeight(30)
+        
+        layout.addRow("Имя пользователя:", self.username_edit)
+        layout.addRow("Пароль:", self.password_edit)
+        
+        buttons = QHBoxLayout()
+        login_btn = QPushButton("Войти")
+        cancel_btn = QPushButton("Отмена")
+        
+        login_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #28a745;
+                color: white;
+                font-weight: bold;
+                padding: 8px 16px;
+                border-radius: 4px;
+                min-width: 80px;
+            }
+            QPushButton:hover {
+                background-color: #218838;
+            }
+        """)
+        
+        cancel_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #6c757d;
+                color: white;
+                font-weight: bold;
+                padding: 8px 16px;
+                border-radius: 4px;
+                min-width: 80px;
+            }
+            QPushButton:hover {
+                background-color: #5a6268;
+            }
+        """)
+        
+        login_btn.clicked.connect(self.accept)
+        cancel_btn.clicked.connect(self.reject)
+        
+        buttons.addWidget(login_btn)
+        buttons.addWidget(cancel_btn)
+        layout.addRow(buttons)
+        
+        self.setLayout(layout)
+    
+    def get_credentials(self) -> tuple[str, str]:
+        """Get entered username and password."""
+        return self.username_edit.text(), self.password_edit.text()
 class AddDrugDialog(QDialog):
     """Dialog for adding new drugs to the database."""
     
@@ -46,6 +113,8 @@ class AddDrugDialog(QDialog):
     def setup_ui(self):
         """Create UI elements."""
         layout = QFormLayout()
+        layout.setSpacing(15)
+        layout.setContentsMargins(20, 20, 20, 20)
         layout.setSpacing(15)
         layout.setContentsMargins(20, 20, 20, 20)
         
@@ -144,6 +213,7 @@ class AddDrugDialog(QDialog):
             'contraindications': self.contraindications_edit.text().strip(),
             'description': self.description_edit.toPlainText().strip()
         }
+        
 
 
 class ComparisonDialog(QDialog):
@@ -168,7 +238,6 @@ class ComparisonDialog(QDialog):
         """Create UI elements."""
         layout = QVBoxLayout()
         
-        # Create comparison table
         self.table = QTableWidget()
         self.table.setColumnCount(len(self.drugs))
         self.table.setRowCount(8)
@@ -184,7 +253,6 @@ class ComparisonDialog(QDialog):
             "Разница с базовой ценой"
         ])
         
-        # Fill table data
         for col, drug in enumerate(self.drugs):
             self.table.setItem(0, col, QTableWidgetItem(str(drug['substance'])))
             self.table.setItem(1, col, QTableWidgetItem(str(drug['form'])))
@@ -193,11 +261,9 @@ class ComparisonDialog(QDialog):
             self.table.setItem(4, col, QTableWidgetItem(str(drug.get('contraindications', '') or '')))
             self.table.setItem(5, col, QTableWidgetItem(str(drug.get('description', '') or '')))
             
-            # Calculate price per unit (simplified)
             price_per_unit = f"{drug['price']:.2f}"
             self.table.setItem(6, col, QTableWidgetItem(price_per_unit))
             
-            # Calculate difference from first drug
             if col > 0:
                 diff = drug['price'] - self.drugs[0]['price']
                 diff_text = f"{'+' if diff > 0 else ''}{diff:.2f} руб."
@@ -205,12 +271,9 @@ class ComparisonDialog(QDialog):
             else:
                 self.table.setItem(7, col, QTableWidgetItem("—"))
         
-        # Make table read-only
         self.table.setEditTriggers(QTableWidget.NoEditTriggers)
         
-        # Auto-size columns
         self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        # Enable alternating row colors
         self.table.setAlternatingRowColors(True)
         
         layout.addWidget(self.table)
@@ -247,7 +310,6 @@ class MainWindow(QMainWindow):
         self.load_filter_options()
         self.load_all_drugs()
         
-        # Initially set as regular user
         self.auth.current_user = {"username": "user", "role": "user"}
         self.update_ui_for_role()
         
@@ -267,7 +329,6 @@ class MainWindow(QMainWindow):
     def toggle_admin_login(self):
         """Handle admin login/logout."""
         if not self.auth.is_admin():
-            # Try to log in as admin
             dialog = LoginDialog(self)
             if dialog.exec_() == QDialog.Accepted:
                 username, password = dialog.get_credentials()
@@ -281,7 +342,6 @@ class MainWindow(QMainWindow):
                 else:
                     QMessageBox.warning(self, "Ошибка", "Неверное имя пользователя или пароль")
         else:
-            # Log out admin
             self.auth.current_user = {"username": "user", "role": "user"}
             self.update_ui_for_role()
     
@@ -290,7 +350,6 @@ class MainWindow(QMainWindow):
         is_admin = self.auth.is_admin()
         role_text = "администратор" if is_admin else "пользователь"
         
-        # Update menu items
         menubar = self.menuBar()
         file_menu = menubar.findChild(QMenu, "Файл")
         if file_menu:
@@ -298,7 +357,6 @@ class MainWindow(QMainWindow):
                 if action.text() in ["Добавить препарат", "Редактировать препарат", "Удалить препарат"]:
                     action.setEnabled(is_admin)
         
-        # Update login/logout action text
         self.login_action.setText("Выход из админ. режима" if is_admin else "Вход для администратора")
         
         self.statusBar().showMessage(f"Режим работы: {role_text}")
@@ -311,15 +369,17 @@ class MainWindow(QMainWindow):
         self.database = Database()
         self.search_engine = SearchEngine(self.database)
         
-        # Populate with sample data if database is empty
         self.database.populate_sample_data()
+        try:
+            self.database.populate_pharmacology_if_empty()
+        except Exception:
+            pass
     
     def setup_ui(self):
         """Create and setup UI elements."""
         self.setWindowTitle("Поиск аналогов лекарственных препаратов")
         self.setMinimumSize(1200, 700)
         
-        # Apply modern dark theme styling to the window
         self.setStyleSheet("""
             QMainWindow {
                 background-color: #1e1e1e;
@@ -572,7 +632,6 @@ class MainWindow(QMainWindow):
         main_layout.setSpacing(15)
         main_layout.setContentsMargins(15, 15, 15, 15)
         
-        # Search section
         search_group = QGroupBox("🔍 Поиск аналогов")
         search_layout = QVBoxLayout()
         
@@ -612,7 +671,6 @@ class MainWindow(QMainWindow):
         search_group.setLayout(search_layout)
         main_layout.addWidget(search_group)
         
-        # Filters section (separate from search)
         filters_group = QGroupBox("🔽 Фильтры препаратов")
         filters_layout = QVBoxLayout()
         
@@ -707,11 +765,9 @@ class MainWindow(QMainWindow):
         filters_group.setLayout(filters_layout)
         main_layout.addWidget(filters_group)
         
-        # Results section
         results_group = QGroupBox("📊 Препараты")
         results_layout = QVBoxLayout()
         
-        # Action buttons with modern styling
         action_buttons_layout = QHBoxLayout()
         action_buttons_layout.setSpacing(10)
         
@@ -797,7 +853,6 @@ class MainWindow(QMainWindow):
         
         results_layout.addLayout(action_buttons_layout)
         
-        # Results table
         self.results_table = QTableWidget()
         self.results_table.setColumnCount(8)
         self.results_table.setHorizontalHeaderLabels([
@@ -810,14 +865,10 @@ class MainWindow(QMainWindow):
             "Описание",
             "Цена"
         ])
-        # Enable sorting on all columns
         self.results_table.setSortingEnabled(True)
-        # Make columns resizable (Interactive mode)
         self.results_table.horizontalHeader().setSectionResizeMode(QHeaderView.Interactive)
         
-        # Set word wrap for description column
         self.results_table.setWordWrap(True)
-        # Set default column widths
         self.results_table.setColumnWidth(0, 60)  # Выбор
         self.results_table.setColumnWidth(1, 180)  # Название
         self.results_table.setColumnWidth(2, 200)  # Действующее вещество
@@ -828,24 +879,20 @@ class MainWindow(QMainWindow):
         self.results_table.setColumnWidth(7, 100)  # Цена
         self.results_table.setSelectionBehavior(QTableWidget.SelectRows)
         self.results_table.setEditTriggers(QTableWidget.NoEditTriggers)
-        # Enable alternating row colors for better readability
         self.results_table.setAlternatingRowColors(True)
         
         results_layout.addWidget(self.results_table)
         results_group.setLayout(results_layout)
         main_layout.addWidget(results_group)
         
-        # Create menu bar
         self.create_menu_bar()
         
-        # Create status bar
         self.statusBar().showMessage("Готов к работе")
     
     def create_menu_bar(self):
         """Create application menu bar."""
         menubar = self.menuBar()
         
-        # File menu
         file_menu = menubar.addMenu("Файл")
         
         add_action = QAction("Добавить препарат", self)
@@ -868,7 +915,6 @@ class MainWindow(QMainWindow):
         
         file_menu.addSeparator()
         
-        # Add login/logout action
         self.login_action = QAction("Вход для администратора", self)
         self.login_action.triggered.connect(self.toggle_admin_login)
         file_menu.addAction(self.login_action)
@@ -879,12 +925,23 @@ class MainWindow(QMainWindow):
         exit_action.triggered.connect(self.close)
         file_menu.addAction(exit_action)
         
-        # Help menu
-        help_menu = menubar.addMenu("Справка")
         
         about_action = QAction("О программе", self)
         about_action.triggered.connect(self.show_about)
-        help_menu.addAction(about_action)
+
+        analysis_menu = menubar.addMenu("Анализы")
+        interaction_action = QAction("Анализ взаимодействий", self)
+        interaction_action.triggered.connect(self.open_interaction_window)
+        analysis_menu.addAction(interaction_action)
+
+    def open_interaction_window(self):
+        """Open the drug interaction analysis window."""
+        try:
+            win = InteractionWindow(self.database, parent=self)
+            win.show()
+            self._interaction_window = win
+        except Exception as e:
+            QMessageBox.critical(self, "Ошибка", f"Не удалось открыть окно анализа: {e}")
     
     def load_filter_options(self):
         """Load filter options from database."""
@@ -924,7 +981,6 @@ class MainWindow(QMainWindow):
             )
             
             if filtered_drugs:
-                # Convert to format expected by display_results: (drug, similarity)
                 formatted_results = [(drug, 1.0) for drug in filtered_drugs]
                 self.display_results(formatted_results)
                 self.statusBar().showMessage(f"Отображено препаратов: {len(filtered_drugs)}")
@@ -939,9 +995,8 @@ class MainWindow(QMainWindow):
         """Load all drugs from database and apply filters."""
         self.apply_filters()
         
-        # After loading drugs, adjust the description column width
-        self.results_table.setColumnWidth(6, 350)  # Make description column wider
-        self.results_table.resizeRowsToContents()  # Adjust row heights automatically
+        self.results_table.setColumnWidth(6, 350)
+        self.results_table.resizeRowsToContents()
     
     def search_analogs(self):
         """Perform analog search based on input and filters."""
@@ -952,15 +1007,12 @@ class MainWindow(QMainWindow):
             return
         
         try:
-            # Get filter values using helper method
             form, manufacturer, min_price, max_price, exclude_contraindication = self.get_filter_values()
             
-            # Perform search
             results = self.search_engine.search_with_filters(
                 query, form, manufacturer, min_price, max_price, exclude_contraindication
             )
             
-            # Display results
             self.display_results(results)
             
             if not results:
@@ -976,43 +1028,32 @@ class MainWindow(QMainWindow):
     
     def display_results(self, results: List[Tuple[Dict, float]]):
         """Display search results in table."""
-        # Temporarily disable sorting while populating to avoid issues
         self.results_table.setSortingEnabled(False)
         self.results_table.setRowCount(len(results))
         
         for row, (drug, similarity) in enumerate(results):
-            # Checkbox
             checkbox = QTableWidgetItem()
             checkbox.setCheckState(Qt.Unchecked)
-            # Make checkbox non-sortable
             checkbox.setFlags(checkbox.flags() & ~Qt.ItemIsEditable)
             self.results_table.setItem(row, 0, checkbox)
             
-            # Name
             name_item = QTableWidgetItem(drug['name'])
             name_item.setData(Qt.UserRole, drug['id'])
             self.results_table.setItem(row, 1, name_item)
             
-            # Substance
             self.results_table.setItem(row, 2, QTableWidgetItem(drug['substance']))
             
-            # Form
             self.results_table.setItem(row, 3, QTableWidgetItem(drug['form']))
             
-            # Manufacturer
             self.results_table.setItem(row, 4, QTableWidgetItem(drug['manufacturer']))
             
-            # Contraindications
             contraindications = drug.get('contraindications', '') or ''
             self.results_table.setItem(row, 5, QTableWidgetItem(contraindications))
             
-            # Description
             description = drug.get('description', '')
             description_item = QTableWidgetItem(description if description else '')
             description_item.setTextAlignment(Qt.AlignLeft | Qt.AlignTop)
             self.results_table.setItem(row, 6, description_item)
-            
-            # Calculate row height based on description text
             metrics = self.results_table.fontMetrics()
             description_width = self.results_table.columnWidth(6) - 20  # Account for padding
             text_height = metrics.boundingRect(
@@ -1022,34 +1063,25 @@ class MainWindow(QMainWindow):
             ).height()
             self.results_table.setRowHeight(row, max(40, text_height + 20))
             
-            # Price - store numeric value for proper sorting
             price_item = QTableWidgetItem()
             price_item.setData(Qt.DisplayRole, f"{drug['price']:.2f} руб.")
             price_item.setData(Qt.UserRole, drug['price'])
-            # Set numeric value for sorting
             price_item.setData(Qt.EditRole, drug['price'])
             self.results_table.setItem(row, 7, price_item)
         
-        # Adjust row heights for descriptions after all items are set
-        # This ensures column widths are already set
         for row in range(len(results)):
             description_item = self.results_table.item(row, 6)
             if description_item:
                 description = description_item.text()
                 if description:
-                    # Use column width (default 350) for calculation
                     col_width = self.results_table.columnWidth(6) or 350
-                    # Approximate: ~10 pixels per character, but account for word wrapping
                     chars_per_line = max(35, col_width // 10)
                     estimated_lines = max(1, (len(description) + chars_per_line - 1) // chars_per_line)
-                    # Set row height: minimum 30, maximum 120, ~25 pixels per line
                     row_height = max(30, min(120, estimated_lines * 25 + 10))
                     self.results_table.setRowHeight(row, row_height)
         
-        # Re-enable sorting after populating
         self.results_table.setSortingEnabled(True)
         
-        # Enable buttons
         self.compare_btn.setEnabled(len(results) > 0)
         self.export_csv_btn.setEnabled(len(results) > 0)
         self.export_json_btn.setEnabled(len(results) > 0)
