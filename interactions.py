@@ -168,7 +168,7 @@ class InteractionEngine:
                         'drug_a': str(a),
                         'drug_b': str(b),
                         'score': 0.0,
-                        'level': 'Low',
+                        'level': 'Низкий',
                         'mechanisms': [],
                         'comments': f'Error: {e}'
                     }
@@ -198,10 +198,10 @@ class InteractionWindow(QWidget):
             item = QListWidgetItem(f"{d['name']} ({d['form']})")
             item.setData(Qt.UserRole, d['id'])
             self.drug_list.addItem(item)
-        analyze_btn = QPushButton('🔬 Проанализировать взаимодействия')
+        analyze_btn = QPushButton('Проанализировать взаимодействия')
         analyze_btn.clicked.connect(self.on_analyze)
         left_layout.addWidget(analyze_btn)
-        export_btn = QPushButton('📄 Экспорт в CSV')
+        export_btn = QPushButton('Экспорт в CSV')
         export_btn.clicked.connect(self.on_export_csv)
         left_layout.addWidget(export_btn)
         top_layout.addLayout(left_layout, 1)
@@ -233,9 +233,9 @@ class InteractionWindow(QWidget):
             mech_item = QTableWidgetItem(', '.join(res.get('mechanisms', []) or []))
             comments_item = QTableWidgetItem(res.get('comments', ''))
             lvl = res.get('level', '')
-            if lvl == 'High':
+            if lvl == 'Высокий':
                 color = QColor(220, 80, 80)
-            elif lvl == 'Moderate':
+            elif lvl == 'Средний':
                 color = QColor(240, 200, 80)
             else:
                 color = QColor(160, 220, 160)
@@ -289,7 +289,7 @@ def run_interaction_report():
             except Exception:
                 continue
             total += 1
-            if res.get('level') and res['level'] != 'Low':
+            if res.get('level') and res['level'] != 'Низкий':
                 results.append(res)
     results.sort(key=lambda r: r['score'], reverse=True)
     csv_file = 'interaction_report.csv'
