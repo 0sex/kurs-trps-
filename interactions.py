@@ -123,16 +123,16 @@ class InteractionEngine:
         score = max(0.0, min(1.0, raw_score))
 
         if score < 0.3:
-            level = 'Low'
+            level = 'Низкий'
         elif score < 0.6:
-            level = 'Moderate'
+            level = 'Средний'
         else:
-            level = 'High'
+            level = 'Высокий'
 
         if 'hepat' in ' '.join(mechanisms).lower() or 'liver' in ' '.join(mechanisms).lower():
-            comments.append('Potential increased hepatotoxicity')
+            comments.append('Потенциально повышенная гепатотоксичность')
         if toxicity_score > 0.5:
-            comments.append('Additive toxicity risk')
+            comments.append('Риск токсичности')
 
         result = {
             'drug_a': a['drug']['name'],
@@ -207,7 +207,7 @@ class InteractionWindow(QWidget):
         top_layout.addLayout(left_layout, 1)
         self.results_table = QTableWidget()
         self.results_table.setColumnCount(5)
-        self.results_table.setHorizontalHeaderLabels(['Drug A', 'Drug B', 'Risk', 'Mechanisms', 'Comments'])
+        self.results_table.setHorizontalHeaderLabels(['Лекарство 1', 'Лекарство 2', 'Риск', 'Механизм', 'Комментарии'])
         right_layout.addWidget(self.results_table)
         top_layout.addLayout(right_layout, 2)
         layout.addLayout(top_layout)
