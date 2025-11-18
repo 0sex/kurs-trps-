@@ -137,7 +137,6 @@ class AddDrugDialog(QDialog):
         self.contraindications_edit.setPlaceholderText("Можно несколько через ',' или ';'")
         self.contraindications_edit.setMinimumHeight(35)
         
-        # Description field - use QTextEdit for multi-line text
         from PyQt5.QtWidgets import QTextEdit
         self.description_edit = QTextEdit()
         self.description_edit.setPlaceholderText("Опишите действие препарата и для чего его применяют...")
@@ -154,8 +153,8 @@ class AddDrugDialog(QDialog):
         
         buttons = QHBoxLayout()
         buttons.setSpacing(10)
-        save_btn = QPushButton("💾 Сохранить")
-        cancel_btn = QPushButton("❌ Отмена")
+        save_btn = QPushButton("Сохранить")
+        cancel_btn = QPushButton("Отмена")
         save_btn.clicked.connect(self.accept)
         cancel_btn.clicked.connect(self.reject)
         save_btn.setStyleSheet("""
@@ -632,14 +631,14 @@ class MainWindow(QMainWindow):
         main_layout.setSpacing(15)
         main_layout.setContentsMargins(15, 15, 15, 15)
         
-        search_group = QGroupBox("🔍 Поиск аналогов")
+        search_group = QGroupBox("Поиск аналогов")
         search_layout = QVBoxLayout()
         
         search_input_layout = QHBoxLayout()
         search_label = QLabel("Название препарата:")
         self.search_input = QLineEdit()
         self.search_input.setPlaceholderText("Введите название препарата...")
-        search_btn = QPushButton("🔍 Найти аналоги")
+        search_btn = QPushButton("Найти аналоги")
         search_btn.clicked.connect(self.search_analogs)
         self.search_input.returnPressed.connect(search_btn.click)
         search_btn.setStyleSheet("""
@@ -712,7 +711,7 @@ class MainWindow(QMainWindow):
         self.contraindication_filter.setCurrentText("")
         self.contraindication_filter.setPlaceholderText("Исключить противопоказание")
         
-        apply_filters_btn = QPushButton("✅ Применить фильтры")
+        apply_filters_btn = QPushButton("Применить фильтры")
         apply_filters_btn.clicked.connect(self.apply_filters)
         apply_filters_btn.setStyleSheet("""
             QPushButton {
@@ -734,7 +733,7 @@ class MainWindow(QMainWindow):
             }
         """)
         
-        clear_filters_btn = QPushButton("🗑️ Очистить")
+        clear_filters_btn = QPushButton("Очистить")
         clear_filters_btn.clicked.connect(self.clear_filters)
         clear_filters_btn.setStyleSheet("""
             QPushButton {
@@ -765,13 +764,13 @@ class MainWindow(QMainWindow):
         filters_group.setLayout(filters_layout)
         main_layout.addWidget(filters_group)
         
-        results_group = QGroupBox("📊 Препараты")
+        results_group = QGroupBox("Препараты")
         results_layout = QVBoxLayout()
         
         action_buttons_layout = QHBoxLayout()
         action_buttons_layout.setSpacing(10)
         
-        self.compare_btn = QPushButton("⚖️ Сравнить выбранные")
+        self.compare_btn = QPushButton("Сравнить выбранные")
         self.compare_btn.clicked.connect(self.compare_selected)
         self.compare_btn.setEnabled(False)
         self.compare_btn.setStyleSheet("""
@@ -796,7 +795,7 @@ class MainWindow(QMainWindow):
             }
         """)
         
-        self.export_csv_btn = QPushButton("📄 Экспорт в CSV")
+        self.export_csv_btn = QPushButton("Экспорт в CSV")
         self.export_csv_btn.clicked.connect(self.export_to_csv)
         self.export_csv_btn.setEnabled(False)
         self.export_csv_btn.setStyleSheet("""
@@ -821,7 +820,7 @@ class MainWindow(QMainWindow):
             }
         """)
         
-        self.export_json_btn = QPushButton("📋 Экспорт в JSON")
+        self.export_json_btn = QPushButton("Экспорт в JSON")
         self.export_json_btn.clicked.connect(self.export_to_json)
         self.export_json_btn.setEnabled(False)
         self.export_json_btn.setStyleSheet("""
@@ -924,10 +923,6 @@ class MainWindow(QMainWindow):
         exit_action = QAction("Выход", self)
         exit_action.triggered.connect(self.close)
         file_menu.addAction(exit_action)
-        
-        
-        about_action = QAction("О программе", self)
-        about_action.triggered.connect(self.show_about)
 
         analysis_menu = menubar.addMenu("Анализы")
         interaction_action = QAction("Анализ взаимодействий", self)
@@ -1322,33 +1317,6 @@ class MainWindow(QMainWindow):
             except Exception as e:
                 QMessageBox.critical(self, "Ошибка", f"Ошибка удаления: {str(e)}")
     
-    def show_about(self):
-        """Show about dialog."""
-        about_text = """
-        <div style="color: #e0e0e0;">
-        <h2 style="color: #4a9eff;">💊 Поиск аналогов лекарственных препаратов</h2>
-        <p><b>Версия 1.0</b></p>
-        <p>Система для поиска аналогов лекарственных препаратов 
-        на основе действующих веществ.</p>
-        <p>Разработано с использованием Python 3.13 и PyQt5.</p>
-        <hr style="color: #3d3d3d;">
-        <p><b style="color: #4a9eff;">✨ Функции:</b></p>
-        <ul>
-            <li>🔍 Поиск аналогов по действующему веществу</li>
-            <li>🔽 Фильтрация по форме выпуска, производителю и цене</li>
-            <li>⚖️ Сравнение препаратов</li>
-            <li>📄 Экспорт результатов в CSV и JSON</li>
-            <li>📊 Управление базой данных препаратов</li>
-            <li>🌙 Темная тема интерфейса</li>
-            <li>📈 Сортировка и настройка колонок</li>
-        </ul>
-        </div>
-        """
-        msg = QMessageBox(self)
-        msg.setWindowTitle("О программе")
-        msg.setText(about_text)
-        msg.setIcon(QMessageBox.Information)
-        msg.exec_()
 
 
 def main():

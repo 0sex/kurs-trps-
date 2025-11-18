@@ -1,6 +1,8 @@
 from typing import Dict, List, Tuple, Any
 from datetime import datetime
 import csv
+import difflib
+import re
 from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QListWidget,
     QListWidgetItem, QMessageBox, QTableWidget, QTableWidgetItem, QFileDialog
@@ -9,6 +11,84 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor
 
 from database import Database
+
+
+# --- Synonyms and normalization maps ---
+TARGET_SYNONYMS = {
+    "ltcc": "l-type calcium channel",
+    "l-vscc": "l-type calcium channel",
+    "кальциевый канал l-типа": "l-type calcium channel",
+    "сердечный кальциевый канал": "l-type calcium channel",
+}
+
+EFFECT_SYNONYMS = {
+    "гипотензия": "низкое давление",
+    "ортостатическая гипотензия": "низкое давление",
+    "low blood pressure": "низкое давление",
+
+    "гипонатриемия": "низкий натрий",
+    "низкий уровень натрия": "низкий натрий",
+
+    "жк-кровотечение": "желудочно-кишечное кровотечение",
+    "ulcer": "желудочно-кишечкое кровотечение",
+}
+
+
+# Global tuning weights (metabolic, dynamical, toxicity)
+# Increased back to get proper distribution now that score/mechanism are separated
+WEIGHTS = {
+    'metabolic': 0.35,
+    'dynamical': 0.25,
+    'toxicity': 0.15
+}
+
+# Additional synonym suggestions (collected from DB frequency)
+TARGET_SYNONYMS.update({
+    'cox1': 'COX1',
+    'cox2': 'COX2',
+    'cox3': 'COX3',
+    'sert': 'SERT',
+    'at1-рецептор': 'AT1 receptor',
+    'na-k-2cl котранспортер': 'Na-K-2Cl cotransporter',
+    'na-cl котранспортер': 'Na-Cl cotransporter',
+    'h+/k+-атфаза': 'H+/K+-ATPase',
+})
+
+EFFECT_SYNONYMS.update({
+    'гипотензия': 'низкое давление',
+    'ортостатическая гипотензия': 'низкое давление',
+    'гипонатриемия': 'низкий натрий',
+    'серотониновый синдром': 'серотониновый синдром',
+})
+
+
+def normalize(text: str) -> str:
+    if not text:
+        return ""
+    text = str(text).strip().lower()
+    if not text:
+        return ""
+
+    # exact synonym maps
+    if text in TARGET_SYNONYMS:
+        return TARGET_SYNONYMS[text]
+    if text in EFFECT_SYNONYMS:
+        return EFFECT_SYNONYMS[text]
+
+    # basic normalization: remove punctuation and multiple spaces
+    text = re.sub(r"[^a-z0-9а-яё -]", " ", text)
+    text = re.sub(r"\s+", " ", text).strip()
+    return text
+
+
+def fuzzy_match(key: str, candidates: List[str], cutoff: float = 0.65) -> List[str]:
+    if not key or not candidates:
+        return []
+    key_n = normalize(key)
+    cand_map = {normalize(c): c for c in candidates}
+    normalized_candidates = list(cand_map.keys())
+    matches = difflib.get_close_matches(key_n, normalized_candidates, n=3, cutoff=cutoff)
+    return [cand_map[m] for m in matches]
 
 
 class InteractionEngine:
@@ -28,30 +108,54 @@ class InteractionEngine:
         }
 
     def _shared_enzymes(self, metab_a: List[Dict], metab_b: List[Dict]) -> List[Tuple[Dict, Dict]]:
+        """Find shared enzymes. More permissive - adds any shared enzyme."""
         pairs = []
-        enzymes_b = {m['enzyme_name'].lower(): m for m in metab_b}
+        enzymes_b = {normalize(m.get('enzyme_name', '')): m for m in metab_b}
         for ma in metab_a:
-            name = ma['enzyme_name'].lower()
+            name = normalize(ma.get('enzyme_name', ''))
+            if not name:
+                continue
             if name in enzymes_b:
                 pairs.append((ma, enzymes_b[name]))
+                continue
+            # fuzzy fallback - more permissive
+            matches = difflib.get_close_matches(name, list(enzymes_b.keys()), n=1, cutoff=0.70)
+            if matches:
+                pairs.append((ma, enzymes_b[matches[0]]))
         return pairs
 
     def _shared_targets(self, targets_a: List[Dict], targets_b: List[Dict]) -> List[Tuple[Dict, Dict]]:
+        """Find shared targets between two drugs. More permissive than before - adds any shared target."""
         pairs = []
-        tb = {t['target_name'].lower(): t for t in targets_b}
+        mapped_b = {normalize(t.get('target_name', '')): t for t in targets_b}
+        b_keys = list(mapped_b.keys())
         for ta in targets_a:
-            name = ta['target_name'].lower()
-            if name in tb:
-                pairs.append((ta, tb[name]))
+            na = normalize(ta.get('target_name', ''))
+            if not na:
+                continue
+            if na in mapped_b:
+                pairs.append((ta, mapped_b[na]))
+                continue
+            # fuzzy try - more permissive cutoff
+            matches = difflib.get_close_matches(na, b_keys, n=2, cutoff=0.65)
+            for m in matches:
+                pairs.append((ta, mapped_b[m]))
         return pairs
 
     def _effects_overlap(self, effects_a: List[Dict], effects_b: List[Dict]) -> List[Tuple[Dict, Dict]]:
-        eb = {e['effect_name'].lower(): e for e in effects_b}
+        eb = {normalize(e.get('effect_name', '')): e for e in effects_b}
         pairs = []
+        b_keys = list(eb.keys())
         for ea in effects_a:
-            name = ea['effect_name'].lower()
+            name = normalize(ea.get('effect_name', ''))
+            if not name:
+                continue
             if name in eb:
                 pairs.append((ea, eb[name]))
+                continue
+            matches = difflib.get_close_matches(name, b_keys, n=2, cutoff=0.75)
+            for m in matches:
+                pairs.append((ea, eb[m]))
         return pairs
 
     def analyze_interaction(self, drug_a_id: int, drug_b_id: int, use_cache: bool = True) -> Dict[str, Any]:
@@ -83,45 +187,200 @@ class InteractionEngine:
         for ma, mb in shared_enz:
             role_a = (ma.get('role') or '').lower()
             role_b = (mb.get('role') or '').lower()
-            if role_a == 'inhibitor' and role_b == 'substrate':
-                metabolic_score += 0.6
-                mechanisms.append(f"{ma['enzyme_name']} inhibition (A inhibits B)")
-            elif role_b == 'inhibitor' and role_a == 'substrate':
-                metabolic_score += 0.6
-                mechanisms.append(f"{ma['enzyme_name']} inhibition (B inhibits A)")
-            elif role_a == 'inducer' and role_b == 'substrate':
-                metabolic_score += 0.3
-                mechanisms.append(f"{ma['enzyme_name']} induction (A induces B)")
-            elif role_b == 'inducer' and role_a == 'substrate':
-                metabolic_score += 0.3
-                mechanisms.append(f"{ma['enzyme_name']} induction (B induces A)")
+            if role_a == 'ингибитор' and role_b == 'субстрат':
+                metabolic_score += 0.50
+                mechanisms.append(f"{ma['enzyme_name']}: ингибирование (A ингибирует B)")
+            elif role_b == 'ингибитор' and role_a == 'субстрат':
+                metabolic_score += 0.50
+                mechanisms.append(f"{ma['enzyme_name']}: ингибирование (B ингибирует A)")
+            elif role_a == 'индуктор' and role_b == 'субстрат':
+                metabolic_score += 0.25
+                mechanisms.append(f"{ma['enzyme_name']}: индукция (A индуцирует B)")
+            elif role_b == 'индуктор' and role_a == 'субстрат':
+                metabolic_score += 0.25
+                mechanisms.append(f"{ma['enzyme_name']}: индукция (B индуцирует A)")
+            else:
+                # Any shared enzyme is a mechanism
+                metabolic_score += 0.15
+                mechanisms.append(f"{ma['enzyme_name']}: оба препарата метаболизируются этим ферментом")
 
         shared_targets = self._shared_targets(a['targets'], b['targets'])
         for ta, tb in shared_targets:
             et_a = (ta.get('effect_type') or '').lower()
             et_b = (tb.get('effect_type') or '').lower()
-            if et_a == 'inhibitor' and et_b == 'inhibitor':
-                dynamical_score += 0.5
-                mechanisms.append(f"{ta['target_name']} additive inhibition")
-            elif et_a == 'agonist' and et_b == 'agonist':
-                dynamical_score += 0.4
-                mechanisms.append(f"{ta['target_name']} additive activation")
-            elif (et_a in ('agonist','activator') and et_b in ('antagonist','inhibitor')) or (et_b in ('agonist','activator') and et_a in ('antagonist','inhibitor')):
-                dynamical_score += 0.8
-                mechanisms.append(f"{ta['target_name']} opposing activity")
+            target_name = ta.get('target_name', 'Unknown')
+            
+            # Always add mechanism for shared target, even if effect types differ
+            mechanisms.append(f"{target_name}: оба препарата действуют на эту цель ({et_a} + {et_b})")
+            
+            # Boost score based on effect type compatibility
+            if et_a == 'ингибитор' and et_b == 'ингибитор':
+                dynamical_score += 0.40
+                mechanisms[-1] = f"{target_name}: суммарное ингибирование"
+            elif et_a == 'агонист' and et_b == 'агонист':
+                dynamical_score += 0.35
+                mechanisms[-1] = f"{target_name}: суммарная активация"
+            elif (et_a in ('агонист','активатор') and et_b in ('антагонист','ингибитор')) or (et_b in ('агонист','активатор') and et_a in ('антагонист','ингибитор')):
+                dynamical_score += 0.30
+                mechanisms[-1] = f"{target_name}: противоположное действие"
+            else:
+                # Different or unclear effect types - still add small score
+                dynamical_score += 0.10
+                mechanisms[-1] = f"{target_name}: оба препарата действуют на эту цель"
 
         shared_effects = self._effects_overlap(a['effects'], b['effects'])
         for ea, eb in shared_effects:
             level_a = int(ea.get('level') or 0)
             level_b = int(eb.get('level') or 0)
-            toxicity_score += (level_a + level_b) / 10.0
-            mechanisms.append(f"{ea['effect_name']} overlapping side-effect")
+            effect_name = ea.get('effect_name', 'Unknown')
+            # Reasonable toxicity contribution for shared effects
+            toxicity_score += (level_a + level_b) / 5.0
+            # Always add mechanism - this is an actual shared side effect
+            mechanisms.append(f"{effect_name}: оба препарата могут вызвать этот побочный эффект (уровень {level_a}+{level_b})")
 
-        w1, w2, w3 = 0.45, 0.35, 0.2
+        # --- Custom clinical rules (semantic/class interactions) ---
+        drugA = a['drug']['name'].lower()
+        drugB = b['drug']['name'].lower()
+
+        ssri_keywords = ['сертралин', 'флуоксетин', 'флувоксамин', 'пароксетин', 'эсциталопрам', 'ssri']
+        acei_keywords = ['рамиприл', 'эналаприл', 'лизиноприл', 'периндоприл', 'каптоприл', 'ризиноприл', 'ace-i', 'ace inhibitor']
+        beta_keywords = ['метопролол', 'атенолол', 'пропранолол', 'бисопролол', 'acebutolol']
+        nsaid_keywords = ['ибупрофен', 'диклофенак', 'напроксен', 'аспирин', 'nsaid']
+
+        # Helper extractors (handle DB keys vs JSON keys)
+        def _get_target_names(entry_list):
+            names = []
+            for t in entry_list or []:
+                n = t.get('target_name') or t.get('name') or ''
+                n = normalize(n)
+                if n:
+                    names.append(n)
+            return names
+
+        def _get_effect_names(entry_list):
+            names = []
+            for e in entry_list or []:
+                n = e.get('effect_name') or e.get('name') or ''
+                n = normalize(n)
+                if n:
+                    names.append(n)
+            return names
+
+        def _get_enzymes(entry_list):
+            enzymes = []
+            for m in entry_list or []:
+                en = m.get('enzyme_name') or m.get('enzyme') or ''
+                role = (m.get('role') or '').strip().lower()
+                en_n = normalize(en)
+                if en_n:
+                    enzymes.append((en_n, role))
+            return enzymes
+
+        a_targets = _get_target_names(a.get('targets', []))
+        b_targets = _get_target_names(b.get('targets', []))
+        a_effects = _get_effect_names(a.get('effects', []))
+        b_effects = _get_effect_names(b.get('effects', []))
+        a_enz = _get_enzymes(a.get('metabolism', []))
+        b_enz = _get_enzymes(b.get('metabolism', []))
+
+        # Precompute class flags for clarity
+        a_is_ssri = any(k in drugA for k in ssri_keywords) or any(('sert' in t or 'seroton' in t) for t in a_targets + a_effects)
+        b_is_ssri = any(k in drugB for k in ssri_keywords) or any(('sert' in t or 'seroton' in t) for t in b_targets + b_effects)
+        a_is_acei = any(k in drugA for k in acei_keywords) or any(('апф' in t or 'ace' in t) for t in a_targets + a_effects)
+        b_is_acei = any(k in drugB for k in acei_keywords) or any(('апф' in t or 'ace' in t) for t in b_targets + b_effects)
+        a_is_beta = any(k in drugA for k in beta_keywords) or any(('beta' in t or 'бета' in t) for t in a_targets)
+        b_is_beta = any(k in drugB for k in beta_keywords) or any(('beta' in t or 'бета' in t) for t in b_targets)
+        a_is_nsaid = any(k in drugA for k in nsaid_keywords) or any(('nsaid' in t or 'нпвп' in t) for t in a_targets + a_effects)
+        b_is_nsaid = any(k in drugB for k in nsaid_keywords) or any(('nsaid' in t or 'нпвп' in t) for t in b_targets + b_effects)
+
+        # Rule: SSRI + ACE inhibitor → hyponatremia risk
+        if (a_is_ssri and b_is_acei) or (b_is_ssri and a_is_acei):
+            toxicity_score += 0.15
+            comments.append('Риск гипонатриемии повышен')
+
+        # Rule: SSRI + beta-blocker → bradycardia risk
+        if (a_is_ssri and b_is_beta) or (b_is_ssri and a_is_beta):
+            dynamical_score += 0.15
+            comments.append('Повышение риска брадикардии')
+
+        # Rule: NSAIDs + ACE inhibitors → renal risk (triple whammy pattern)
+        if (a_is_nsaid and b_is_acei) or (b_is_nsaid and a_is_acei):
+            toxicity_score += 0.20
+            comments.append('Риск ухудшения функции почек')
+
+        # --- Enzyme-based clinical rules: detect strong CYP inhibitor + substrate pairs ---
+        major_cyps = ['cyp2d6', 'cyp3a4', 'cyp2c9', 'cyp2c19', 'cyp1a2']
+        for enz, role in a_enz:
+            for benz, brole in b_enz:
+                for c in major_cyps:
+                    if c in enz and c in benz:
+                        if (role == 'ингибитор' and brole == 'субстрат') or (brole == 'ингибитор' and role == 'субстрат'):
+                            metabolic_score += 0.25
+                            mechanisms.append(f'Shared {c.upper()} substrate + inhibitor')
+                            comments.append(f'Взаимодействие через {c.upper()} (ингибитор + субстрат)')
+
+        # --- Serotonin syndrome detection (target/effect based) ---
+        serotonin_markers = ['sert', 'seroton', 'серотон']
+        if (any(any(m in t for m in serotonin_markers) for t in a_targets + a_effects) and any(any(m in t for m in serotonin_markers) for t in b_targets + b_effects)) or ('серотониновый синдром' in a_effects and 'серотониновый синдром' in b_effects):
+            toxicity_score += 0.25
+            comments.append('Риск серотонинового синдрома')
+
+        # --- Hyperkalemia risk (aldosterone antagonists + ACE/ARB) ---
+        if (any('альдостерон' in t or 'спиронолактон' in drugA for t in a_targets + a_effects) and any('апф' in t or 'арб' in t or any(k in drugB for k in acei_keywords) for t in b_targets + b_effects)) or (any('альдостерон' in t or 'спиронолактон' in drugB for t in b_targets + b_effects) and any('апф' in t or 'арб' in t or any(k in drugA for k in acei_keywords) for t in a_targets + a_effects)):
+            toxicity_score += 0.20
+            comments.append('Риск гиперкалиемии')
+
+        # --- Bleeding risk: antiplatelet/anticoagulant + NSAID/antiplatelet ---
+        bleed_markers = ['жк-кровотечение', 'желудочно-кишечное кровотечение', 'bleeding', 'anticoagulant', 'antiplatelet', 'агрегация']
+        if (any(m in ' '.join(a_effects) for m in bleed_markers) or any('cox1' in t or 'агрегация' in t for t in a_targets)) and (any(m in ' '.join(b_effects) for m in bleed_markers) or any('cox1' in t or 'агрегация' in t for t in b_targets)):
+            toxicity_score += 0.20
+            comments.append('Повышенный риск кровотечения')
+
+        # --- QT prolongation risk (hERG/Ikr targets) ---
+        qt_markers = ['herg', 'ikr', 'пролонгация qt', 'удлинение qt']
+        if any(any(m in t for m in qt_markers) for t in a_targets + a_effects) and any(any(m in t for m in qt_markers) for t in b_targets + b_effects):
+            toxicity_score += 0.15
+            comments.append('Риск удлинения QT интервала')
+
+        # use global WEIGHTS so we can tune without changing logic
+        w1 = WEIGHTS.get('metabolic', 0.45)
+        w2 = WEIGHTS.get('dynamical', 0.35)
+        w3 = WEIGHTS.get('toxicity', 0.2)
         raw_score = w1 * metabolic_score + w2 * dynamical_score + w3 * toxicity_score
 
         score = max(0.0, min(1.0, raw_score))
 
+        # If no mechanisms found by specific/shared rules, add mechanisms based on individual drug profiles
+        if not mechanisms:
+            # Check drug A's pharmacology
+            drug_a_mechanisms = []
+            if a_targets:
+                drug_a_mechanisms.append(f"{a['drug']['name']}: {len(a_targets)} целей")
+            if a_enz:
+                drug_a_mechanisms.append(f"{a['drug']['name']}: {len(a_enz)} ферментов")
+            if a_effects:
+                drug_a_mechanisms.append(f"{a['drug']['name']}: {len(a_effects)} известно побочных эффектов")
+            
+            # Check drug B's pharmacology
+            drug_b_mechanisms = []
+            if b_targets:
+                drug_b_mechanisms.append(f"{b['drug']['name']}: {len(b_targets)} целей")
+            if b_enz:
+                drug_b_mechanisms.append(f"{b['drug']['name']}: {len(b_enz)} ферментов")
+            if b_effects:
+                drug_b_mechanisms.append(f"{b['drug']['name']}: {len(b_effects)} известно побочных эффектов")
+            
+            # If both drugs have pharmacological activity, they may interact
+            if (drug_a_mechanisms or drug_b_mechanisms):
+                mechanisms.extend(drug_a_mechanisms)
+                mechanisms.extend(drug_b_mechanisms)
+                mechanisms.insert(0, f"Возможное взаимодействие: {a['drug']['name']} + {b['drug']['name']} (оба фармакологически активны)")
+        
+        # Ensure mechanisms are never empty - always show something
+        if not mechanisms:
+            mechanisms.append('Нет особого фармакологического профиля для взаимодействия')
+        
+        # Determine level based ONLY on numerical score, not on presence of mechanisms
         if score < 0.3:
             level = 'Низкий'
         elif score < 0.6:
@@ -129,7 +388,8 @@ class InteractionEngine:
         else:
             level = 'Высокий'
 
-        if 'hepat' in ' '.join(mechanisms).lower() or 'liver' in ' '.join(mechanisms).lower():
+        mechanisms_text = ' '.join(mechanisms).lower()
+        if 'гепато' in mechanisms_text or 'печён' in mechanisms_text:
             comments.append('Потенциально повышенная гепатотоксичность')
         if toxicity_score > 0.5:
             comments.append('Риск токсичности')
@@ -204,6 +464,14 @@ class InteractionWindow(QWidget):
         export_btn = QPushButton('Экспорт в CSV')
         export_btn.clicked.connect(self.on_export_csv)
         left_layout.addWidget(export_btn)
+        
+        # clear_cache_btn = QPushButton('Очистить кэш')
+        # clear_cache_btn.clicked.connect(self.on_clear_cache)
+        # left_layout.addWidget(clear_cache_btn)
+        
+        close_btn = QPushButton('Закрыть')
+        close_btn.clicked.connect(self.close)
+        left_layout.addWidget(close_btn)
         top_layout.addLayout(left_layout, 1)
         self.results_table = QTableWidget()
         self.results_table.setColumnCount(5)
@@ -230,7 +498,15 @@ class InteractionWindow(QWidget):
             a_item = QTableWidgetItem(res.get('drug_a', ''))
             b_item = QTableWidgetItem(res.get('drug_b', ''))
             risk_item = QTableWidgetItem(res.get('level', ''))
-            mech_item = QTableWidgetItem(', '.join(res.get('mechanisms', []) or []))
+            
+            # Handle mechanisms which could be a list or a string from cache
+            mechanisms = res.get('mechanisms', []) or []
+            if isinstance(mechanisms, str):
+                mech_text = mechanisms
+            else:
+                mech_text = ', '.join(mechanisms)
+            mech_item = QTableWidgetItem(mech_text)
+            
             comments_item = QTableWidgetItem(res.get('comments', ''))
             lvl = res.get('level', '')
             if lvl == 'Высокий':
@@ -253,6 +529,15 @@ class InteractionWindow(QWidget):
         if self.results_table.rowCount() == 0:
             QMessageBox.information(self, 'Информация', 'Нет данных для экспорта')
             return
+            # def on_clear_cache(self):
+            #     try:
+            #         conn = self.db._get_connection()
+            #         conn.execute('DELETE FROM drug_interaction_cache')
+            #         conn.commit()
+            #         conn.close()
+            #         QMessageBox.information(self, 'Успех', 'Кэш взаимодействий очищен')
+            #     except Exception as e:
+            #         QMessageBox.critical(self, 'Ошибка', f'Ошибка при очистке кэша: {e}')
         filename, _ = QFileDialog.getSaveFileName(self, 'Экспорт результатов', '', 'CSV Files (*.csv)')
         if not filename:
             return

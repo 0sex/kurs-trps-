@@ -1,0 +1,1669 @@
+{
+  "pharmacology_data": {
+    "Ибупрофен": {
+      "targets": [
+        {
+          "name": "Cox1",
+          "effect_type": "ингибитор",
+          "potency": 0.9
+        },
+        {
+          "name": "Cox2",
+          "effect_type": "ингибитор",
+          "potency": 0.95
+        },
+        {
+          "name": "Pge2",
+          "effect_type": "ингибитор",
+          "potency": 0.7
+        }
+      ],
+      "metabolism": [
+        {
+          "enzyme": "Cyp2c9",
+          "role": "субстрат",
+          "rate": 0.8
+        },
+        {
+          "enzyme": "Cyp2c8",
+          "role": "субстрат",
+          "rate": 0.5
+        }
+      ],
+      "side_effects": [
+        {
+          "name": "Желудочно-кишечное Кровотечение",
+          "severity": 4
+        },
+        {
+          "name": "Гепатотоксичность",
+          "severity": 2
+        },
+        {
+          "name": "Нефротоксичность",
+          "severity": 3
+        }
+      ]
+    },
+    "Парацетамол": {
+      "targets": [
+        {
+          "name": "Cox3",
+          "effect_type": "ингибитор",
+          "potency": 0.6
+        },
+        {
+          "name": "Trpv1",
+          "effect_type": "модулятор",
+          "potency": 0.4
+        }
+      ],
+      "metabolism": [
+        {
+          "enzyme": "Cyp2e1",
+          "role": "субстрат",
+          "rate": 0.9
+        },
+        {
+          "enzyme": "Cyp1a2",
+          "role": "субстрат",
+          "rate": 0.4
+        }
+      ],
+      "side_effects": [
+        {
+          "name": "Гепатотоксичность",
+          "severity": 5
+        },
+        {
+          "name": "Сыпь",
+          "severity": 2
+        }
+      ]
+    },
+    "Амлодипин": {
+      "targets": [
+        {
+          "name": "L-type Calcium Channel",
+          "effect_type": "ингибитор",
+          "potency": 0.85
+        },
+        {
+          "name": "L-type Calcium Channel",
+          "effect_type": "блокатор",
+          "potency": 0.8
+        }
+      ],
+      "metabolism": [
+        {
+          "enzyme": "Cyp3a4",
+          "role": "субстрат",
+          "rate": 0.95
+        },
+        {
+          "enzyme": "Cyp3a5",
+          "role": "субстрат",
+          "rate": 0.4
+        }
+      ],
+      "side_effects": [
+        {
+          "name": "Низкое Давление",
+          "severity": 3
+        },
+        {
+          "name": "Отёки",
+          "severity": 2
+        },
+        {
+          "name": "Головная Боль",
+          "severity": 2
+        }
+      ]
+    },
+    "Аспирин Кардио": {
+      "targets": [
+        {
+          "name": "Cox1",
+          "effect_type": "ингибитор",
+          "potency": 0.99
+        },
+        {
+          "name": "Агрегация Тромбоцитов",
+          "effect_type": "ингибитор",
+          "potency": 0.95
+        }
+      ],
+      "metabolism": [
+        {
+          "enzyme": "Cyp2c9",
+          "role": "ингибитор",
+          "rate": 0.3
+        },
+        {
+          "enzyme": "Эстеразы",
+          "role": "субстрат",
+          "rate": 0.8
+        }
+      ],
+      "side_effects": [
+        {
+          "name": "Желудочно-кишечное Кровотечение",
+          "severity": 5
+        },
+        {
+          "name": "Язвообразование",
+          "severity": 4
+        }
+      ]
+    },
+    "Метопролол": {
+      "targets": [
+        {
+          "name": "Бета-1 Адренергический Рецептор",
+          "effect_type": "антагонист",
+          "potency": 0.95
+        },
+        {
+          "name": "Контроль Чсс",
+          "effect_type": "снижение",
+          "potency": 0.9
+        }
+      ],
+      "metabolism": [
+        {
+          "enzyme": "Cyp2d6",
+          "role": "субстрат",
+          "rate": 0.9
+        },
+        {
+          "enzyme": "Конъюгация",
+          "role": "процесс",
+          "rate": 0.5
+        }
+      ],
+      "side_effects": [
+        {
+          "name": "Брадикардия",
+          "severity": 3
+        },
+        {
+          "name": "Низкое Давление",
+          "severity": 2
+        },
+        {
+          "name": "Утомляемость",
+          "severity": 2
+        }
+      ]
+    },
+    "Атенолол": {
+      "targets": [
+        {
+          "name": "Бета-1 Адренергический Рецептор",
+          "effect_type": "антагонист",
+          "potency": 0.92
+        },
+        {
+          "name": "Частота Сердцебиений",
+          "effect_type": "снижение",
+          "potency": 0.88
+        }
+      ],
+      "metabolism": [
+        {
+          "enzyme": "Почечная Экскреция",
+          "role": "путь",
+          "rate": 0.95
+        },
+        {
+          "enzyme": "Минимальный Печёночный",
+          "role": "метаболизм",
+          "rate": 0.1
+        }
+      ],
+      "side_effects": [
+        {
+          "name": "Брадикардия",
+          "severity": 3
+        },
+        {
+          "name": "Низкое Давление",
+          "severity": 2
+        }
+      ]
+    },
+    "Нимодипин": {
+      "targets": [
+        {
+          "name": "Церебральный Кальциевый Канал",
+          "effect_type": "блокатор",
+          "potency": 0.95
+        },
+        {
+          "name": "L-type Calcium Channel",
+          "effect_type": "ингибитор",
+          "potency": 0.9
+        }
+      ],
+      "metabolism": [
+        {
+          "enzyme": "Cyp3a4",
+          "role": "субстрат",
+          "rate": 0.95
+        },
+        {
+          "enzyme": "Первичный Проход",
+          "role": "метаболизм",
+          "rate": 0.8
+        }
+      ],
+      "side_effects": [
+        {
+          "name": "Церебральная Вазодилатация",
+          "severity": 5
+        },
+        {
+          "name": "Низкое Давление",
+          "severity": 2
+        }
+      ]
+    },
+    "Спиронолактон": {
+      "targets": [
+        {
+          "name": "Альдостероновый Рецептор",
+          "effect_type": "антагонист",
+          "potency": 0.95
+        },
+        {
+          "name": "Задержка Калия",
+          "effect_type": "эффект",
+          "potency": 0.9
+        }
+      ],
+      "metabolism": [
+        {
+          "enzyme": "Cyp3a4",
+          "role": "субстрат",
+          "rate": 0.7
+        },
+        {
+          "enzyme": "Печёночный Метаболизм",
+          "role": "активные метаболиты",
+          "rate": 0.8
+        }
+      ],
+      "side_effects": [
+        {
+          "name": "Гиперкалиемия",
+          "severity": 4
+        },
+        {
+          "name": "Гинекомастия",
+          "severity": 2
+        }
+      ]
+    },
+    "Дилтиазем": {
+      "targets": [
+        {
+          "name": "L-type Calcium Channel",
+          "effect_type": "ингибитор",
+          "potency": 0.9
+        },
+        {
+          "name": "Av-узел",
+          "effect_type": "замедление",
+          "potency": 0.85
+        }
+      ],
+      "metabolism": [
+        {
+          "enzyme": "Cyp3a4",
+          "role": "субстрат",
+          "rate": 0.95
+        },
+        {
+          "enzyme": "Cyp3a5",
+          "role": "субстрат",
+          "rate": 0.3
+        }
+      ],
+      "side_effects": [
+        {
+          "name": "Брадикардия",
+          "severity": 3
+        },
+        {
+          "name": "Av-блокада",
+          "severity": 2
+        },
+        {
+          "name": "Отёки",
+          "severity": 2
+        }
+      ]
+    },
+    "Верапамил": {
+      "targets": [
+        {
+          "name": "L-type Calcium Channel",
+          "effect_type": "ингибитор",
+          "potency": 0.92
+        },
+        {
+          "name": "Sa Av Узлы",
+          "effect_type": "эффект",
+          "potency": 0.9
+        }
+      ],
+      "metabolism": [
+        {
+          "enzyme": "Cyp3a4",
+          "role": "субстрат",
+          "rate": 0.9
+        },
+        {
+          "enzyme": "Cyp1a2",
+          "role": "субстрат",
+          "rate": 0.3
+        }
+      ],
+      "side_effects": [
+        {
+          "name": "Запор",
+          "severity": 4
+        },
+        {
+          "name": "Av-блокада",
+          "severity": 3
+        },
+        {
+          "name": "Низкое Давление",
+          "severity": 2
+        }
+      ]
+    },
+    "Флуоксетин": {
+      "targets": [
+        {
+          "name": "Sert",
+          "effect_type": "ингибитор",
+          "potency": 0.95
+        },
+        {
+          "name": "Обратный Захват Серотонина",
+          "effect_type": "блокатор",
+          "potency": 0.95
+        }
+      ],
+      "metabolism": [
+        {
+          "enzyme": "Cyp2d6",
+          "role": "субстрат",
+          "rate": 0.9
+        },
+        {
+          "enzyme": "Cyp2c9",
+          "role": "субстрат",
+          "rate": 0.4
+        }
+      ],
+      "side_effects": [
+        {
+          "name": "Серотониновый Синдром",
+          "severity": 2
+        },
+        {
+          "name": "Низкий Натрий",
+          "severity": 2
+        }
+      ]
+    },
+    "Сертралин": {
+      "targets": [
+        {
+          "name": "Sert",
+          "effect_type": "ингибитор",
+          "potency": 0.93
+        },
+        {
+          "name": "Обратный Захват Допамина",
+          "effect_type": "слабый ингибитор",
+          "potency": 0.3
+        }
+      ],
+      "metabolism": [
+        {
+          "enzyme": "Cyp2d6",
+          "role": "субстрат",
+          "rate": 0.7
+        },
+        {
+          "enzyme": "Cyp3a4",
+          "role": "субстрат",
+          "rate": 0.3
+        }
+      ],
+      "side_effects": [
+        {
+          "name": "Серотониновый Синдром",
+          "severity": 2
+        },
+        {
+          "name": "Сексуальная Дисфункция",
+          "severity": 3
+        }
+      ]
+    },
+    "Амитриптилин": {
+      "targets": [
+        {
+          "name": "Обратный Захват Норадреналина",
+          "effect_type": "ингибитор",
+          "potency": 0.95
+        },
+        {
+          "name": "Обратный Захват Серотонина",
+          "effect_type": "ингибитор",
+          "potency": 0.8
+        }
+      ],
+      "metabolism": [
+        {
+          "enzyme": "Cyp2d6",
+          "role": "субстрат",
+          "rate": 0.9
+        },
+        {
+          "enzyme": "Cyp2c19",
+          "role": "субстрат",
+          "rate": 0.7
+        }
+      ],
+      "side_effects": [
+        {
+          "name": "Антихолинергические Эффекты",
+          "severity": 4
+        },
+        {
+          "name": "Кардиотоксичность",
+          "severity": 3
+        },
+        {
+          "name": "Низкое Давление",
+          "severity": 3
+        }
+      ]
+    },
+    "Метформин": {
+      "targets": [
+        {
+          "name": "Ampk",
+          "effect_type": "активатор",
+          "potency": 0.8
+        },
+        {
+          "name": "Глюконеогенез",
+          "effect_type": "ингибитор",
+          "potency": 0.85
+        }
+      ],
+      "metabolism": [
+        {
+          "enzyme": "Нет Печёночного",
+          "role": "метаболизма",
+          "rate": 0.0
+        },
+        {
+          "enzyme": "Почечная Экскреция",
+          "role": "основная",
+          "rate": 0.95
+        }
+      ],
+      "side_effects": [
+        {
+          "name": "Жк-расстройства",
+          "severity": 3
+        },
+        {
+          "name": "Лактацидоз",
+          "severity": 1
+        },
+        {
+          "name": "Дефицит B12",
+          "severity": 2
+        }
+      ]
+    },
+    "Глибенкламид": {
+      "targets": [
+        {
+          "name": "Калиевый Канал Atp-зависимый",
+          "effect_type": "блокатор",
+          "potency": 0.95
+        },
+        {
+          "name": "Секреция Инсулина",
+          "effect_type": "стимулятор",
+          "potency": 0.9
+        }
+      ],
+      "metabolism": [
+        {
+          "enzyme": "Cyp3a4",
+          "role": "субстрат",
+          "rate": 0.8
+        },
+        {
+          "enzyme": "Cyp2c9",
+          "role": "субстрат",
+          "rate": 0.6
+        }
+      ],
+      "side_effects": [
+        {
+          "name": "Гипогликемия",
+          "severity": 4
+        },
+        {
+          "name": "Прибавка В Весе",
+          "severity": 3
+        }
+      ]
+    },
+    "Аторвастатин": {
+      "targets": [
+        {
+          "name": "Hmg-coa Редуктаза",
+          "effect_type": "ингибитор",
+          "potency": 0.95
+        }
+      ],
+      "metabolism": [
+        {
+          "enzyme": "Cyp3a4",
+          "role": "субстрат",
+          "rate": 0.85
+        }
+      ],
+      "side_effects": [
+        {
+          "name": "Миопатия",
+          "severity": 2
+        },
+        {
+          "name": "Дисфункция Печени",
+          "severity": 1
+        }
+      ]
+    },
+    "Лизиноприл": {
+      "targets": [
+        {
+          "name": "Апф",
+          "effect_type": "ингибитор",
+          "potency": 0.95
+        },
+        {
+          "name": "Потенцирование Кининов",
+          "effect_type": "эффект",
+          "potency": 0.8
+        }
+      ],
+      "metabolism": [
+        {
+          "enzyme": "Нет Печёночного",
+          "role": "метаболизма",
+          "rate": 0.0
+        },
+        {
+          "enzyme": "Почечная Экскреция",
+          "role": "основная",
+          "rate": 0.95
+        }
+      ],
+      "side_effects": [
+        {
+          "name": "Кашель",
+          "severity": 3
+        },
+        {
+          "name": "Ангиоотёк",
+          "severity": 1
+        },
+        {
+          "name": "Гиперкалиемия",
+          "severity": 2
+        }
+      ]
+    },
+    "Эналаприл": {
+      "targets": [
+        {
+          "name": "Апф",
+          "effect_type": "ингибитор",
+          "potency": 0.93
+        },
+        {
+          "name": "Ангиотензин Ii",
+          "effect_type": "снижение",
+          "potency": 0.9
+        }
+      ],
+      "metabolism": [
+        {
+          "enzyme": "Гидролиз Эстеразами",
+          "role": "пролекарство",
+          "rate": 0.95
+        },
+        {
+          "enzyme": "Почечная Экскреция",
+          "role": "активный метаболит",
+          "rate": 0.9
+        }
+      ],
+      "side_effects": [
+        {
+          "name": "Кашель",
+          "severity": 3
+        },
+        {
+          "name": "Низкое Давление",
+          "severity": 2
+        }
+      ]
+    },
+    "Лозартан": {
+      "targets": [
+        {
+          "name": "At1-рецептор",
+          "effect_type": "антагонист",
+          "potency": 0.95
+        },
+        {
+          "name": "Ангиотензин Ii",
+          "effect_type": "блокатор",
+          "potency": 0.95
+        }
+      ],
+      "metabolism": [
+        {
+          "enzyme": "Cyp2c9",
+          "role": "субстрат",
+          "rate": 0.8
+        },
+        {
+          "enzyme": "Глюкуронирование",
+          "role": "путь",
+          "rate": 0.6
+        }
+      ],
+      "side_effects": [
+        {
+          "name": "Гиперкалиемия",
+          "severity": 2
+        },
+        {
+          "name": "Низкое Давление",
+          "severity": 2
+        }
+      ]
+    },
+    "Валсартан": {
+      "targets": [
+        {
+          "name": "At1-рецептор",
+          "effect_type": "антагонист",
+          "potency": 0.94
+        },
+        {
+          "name": "Ангиотензин Ii",
+          "effect_type": "блокирование",
+          "potency": 0.93
+        }
+      ],
+      "metabolism": [
+        {
+          "enzyme": "Cyp2c9",
+          "role": "субстрат",
+          "rate": 0.7
+        },
+        {
+          "enzyme": "Cyp3a4",
+          "role": "незначительно",
+          "rate": 0.2
+        }
+      ],
+      "side_effects": [
+        {
+          "name": "Гиперкалиемия",
+          "severity": 2
+        },
+        {
+          "name": "Головокружение",
+          "severity": 2
+        }
+      ]
+    },
+    "Ситаглиптин": {
+      "targets": [
+        {
+          "name": "Фермент Dpp-4",
+          "effect_type": "ингибитор",
+          "potency": 0.95
+        }
+      ],
+      "metabolism": [
+        {
+          "enzyme": "Cyp3a4",
+          "role": "субстрат",
+          "rate": 0.6
+        }
+      ],
+      "side_effects": [
+        {
+          "name": "Панкреатит",
+          "severity": 1
+        },
+        {
+          "name": "Гипогликемия Редкая",
+          "severity": 1
+        }
+      ]
+    },
+    "Инсулин Короткого Действия": {
+      "targets": [
+        {
+          "name": "Инсулиновый Рецептор",
+          "effect_type": "агонист",
+          "potency": 1.0
+        },
+        {
+          "name": "Поглощение Глюкозы",
+          "effect_type": "стимулятор",
+          "potency": 1.0
+        }
+      ],
+      "metabolism": [
+        {
+          "enzyme": "Протеазное Расщепление",
+          "role": "основной путь",
+          "rate": 0.9
+        }
+      ],
+      "side_effects": [
+        {
+          "name": "Гипогликемия",
+          "severity": 5
+        },
+        {
+          "name": "Липодистрофия",
+          "severity": 2
+        }
+      ]
+    },
+    "Пропранолол": {
+      "targets": [
+        {
+          "name": "Бета-1 Адренергический Рецептор",
+          "effect_type": "антагонист",
+          "potency": 0.9
+        },
+        {
+          "name": "Бета-2 Адренергический Рецептор",
+          "effect_type": "антагонист",
+          "potency": 0.8
+        }
+      ],
+      "metabolism": [
+        {
+          "enzyme": "Cyp2d6",
+          "role": "субстрат",
+          "rate": 0.85
+        },
+        {
+          "enzyme": "Cyp1a2",
+          "role": "субстрат",
+          "rate": 0.3
+        }
+      ],
+      "side_effects": [
+        {
+          "name": "Брадикардия",
+          "severity": 4
+        },
+        {
+          "name": "Низкое Давление",
+          "severity": 3
+        },
+        {
+          "name": "Бронхоспазм",
+          "severity": 2
+        }
+      ]
+    },
+    "Карведилол": {
+      "targets": [
+        {
+          "name": "Бета-1 Адренергический Рецептор",
+          "effect_type": "антагонист",
+          "potency": 0.88
+        },
+        {
+          "name": "Альфа-1 Адренергический Рецептор",
+          "effect_type": "антагонист",
+          "potency": 0.7
+        }
+      ],
+      "metabolism": [
+        {
+          "enzyme": "Cyp2d6",
+          "role": "субстрат",
+          "rate": 0.9
+        },
+        {
+          "enzyme": "Cyp2c9",
+          "role": "субстрат",
+          "rate": 0.3
+        }
+      ],
+      "side_effects": [
+        {
+          "name": "Брадикардия",
+          "severity": 3
+        },
+        {
+          "name": "Низкое Давление",
+          "severity": 3
+        },
+        {
+          "name": "Головокружение",
+          "severity": 2
+        }
+      ]
+    },
+    "Нифедипин": {
+      "targets": [
+        {
+          "name": "L-type Calcium Channel",
+          "effect_type": "ингибитор",
+          "potency": 0.9
+        },
+        {
+          "name": "Гладкие Мышцы Сосудов",
+          "effect_type": "релаксация",
+          "potency": 0.95
+        }
+      ],
+      "metabolism": [
+        {
+          "enzyme": "Cyp3a4",
+          "role": "субстрат",
+          "rate": 0.95
+        }
+      ],
+      "side_effects": [
+        {
+          "name": "Низкое Давление",
+          "severity": 3
+        },
+        {
+          "name": "Тахикардия",
+          "severity": 2
+        },
+        {
+          "name": "Отёки Ног",
+          "severity": 3
+        }
+      ]
+    },
+    "Исрадипин": {
+      "targets": [
+        {
+          "name": "L-type Calcium Channel",
+          "effect_type": "ингибитор",
+          "potency": 0.88
+        },
+        {
+          "name": "Гладкие Мышцы Сосудов",
+          "effect_type": "релаксация",
+          "potency": 0.92
+        }
+      ],
+      "metabolism": [
+        {
+          "enzyme": "Cyp3a4",
+          "role": "субстрат",
+          "rate": 0.9
+        }
+      ],
+      "side_effects": [
+        {
+          "name": "Низкое Давление",
+          "severity": 3
+        },
+        {
+          "name": "Головная Боль",
+          "severity": 2
+        },
+        {
+          "name": "Отёки",
+          "severity": 2
+        }
+      ]
+    },
+    "Рамиприл": {
+      "targets": [
+        {
+          "name": "Апф",
+          "effect_type": "ингибитор",
+          "potency": 0.94
+        },
+        {
+          "name": "Ренин-ангиотензиновая Система",
+          "effect_type": "ингибитор",
+          "potency": 0.9
+        }
+      ],
+      "metabolism": [
+        {
+          "enzyme": "Эстеразы",
+          "role": "пролекарство",
+          "rate": 0.95
+        }
+      ],
+      "side_effects": [
+        {
+          "name": "Кашель",
+          "severity": 3
+        },
+        {
+          "name": "Низкое Давление",
+          "severity": 2
+        },
+        {
+          "name": "Гиперкалиемия",
+          "severity": 2
+        }
+      ]
+    },
+    "Периндоприл": {
+      "targets": [
+        {
+          "name": "Апф",
+          "effect_type": "ингибитор",
+          "potency": 0.93
+        },
+        {
+          "name": "Ангиотензин Ii",
+          "effect_type": "снижение",
+          "potency": 0.88
+        }
+      ],
+      "metabolism": [
+        {
+          "enzyme": "Гидролиз Эстеразами",
+          "role": "пролекарство",
+          "rate": 0.9
+        },
+        {
+          "enzyme": "Почечная Экскреция",
+          "role": "активный метаболит",
+          "rate": 0.85
+        }
+      ],
+      "side_effects": [
+        {
+          "name": "Кашель",
+          "severity": 3
+        },
+        {
+          "name": "Низкое Давление",
+          "severity": 2
+        }
+      ]
+    },
+    "Олмесартан": {
+      "targets": [
+        {
+          "name": "At1-рецептор",
+          "effect_type": "антагонист",
+          "potency": 0.96
+        },
+        {
+          "name": "Ренин-ангиотензиновая Система",
+          "effect_type": "ингибитор",
+          "potency": 0.9
+        }
+      ],
+      "metabolism": [
+        {
+          "enzyme": "Cyp2c9",
+          "role": "субстрат",
+          "rate": 0.6
+        }
+      ],
+      "side_effects": [
+        {
+          "name": "Гиперкалиемия",
+          "severity": 2
+        },
+        {
+          "name": "Диарея",
+          "severity": 2
+        },
+        {
+          "name": "Головокружение",
+          "severity": 1
+        }
+      ]
+    },
+    "Телмисартан": {
+      "targets": [
+        {
+          "name": "At1-рецептор",
+          "effect_type": "антагонист",
+          "potency": 0.95
+        },
+        {
+          "name": "Ppar-гамма",
+          "effect_type": "модулятор",
+          "potency": 0.3
+        }
+      ],
+      "metabolism": [
+        {
+          "enzyme": "Cyp2c9",
+          "role": "субстрат",
+          "rate": 0.65
+        }
+      ],
+      "side_effects": [
+        {
+          "name": "Низкое Давление",
+          "severity": 2
+        },
+        {
+          "name": "Гиперкалиемия",
+          "severity": 2
+        },
+        {
+          "name": "Головокружение",
+          "severity": 2
+        }
+      ]
+    },
+    "Парoxетин": {
+      "targets": [
+        {
+          "name": "Sert",
+          "effect_type": "ингибитор",
+          "potency": 0.96
+        },
+        {
+          "name": "H1 Рецептор Гистамина",
+          "effect_type": "антагонист",
+          "potency": 0.5
+        }
+      ],
+      "metabolism": [
+        {
+          "enzyme": "Cyp2d6",
+          "role": "субстрат",
+          "rate": 0.95
+        },
+        {
+          "enzyme": "Cyp3a4",
+          "role": "субстрат",
+          "rate": 0.2
+        }
+      ],
+      "side_effects": [
+        {
+          "name": "Сонливость",
+          "severity": 3
+        },
+        {
+          "name": "Сексуальная Дисфункция",
+          "severity": 4
+        },
+        {
+          "name": "Увеличение Веса",
+          "severity": 3
+        }
+      ]
+    },
+    "Эсциталопрам": {
+      "targets": [
+        {
+          "name": "Sert",
+          "effect_type": "ингибитор",
+          "potency": 0.92
+        },
+        {
+          "name": "H1 Рецептор",
+          "effect_type": "слабый антагонист",
+          "potency": 0.2
+        }
+      ],
+      "metabolism": [
+        {
+          "enzyme": "Cyp2c19",
+          "role": "субстрат",
+          "rate": 0.7
+        },
+        {
+          "enzyme": "Cyp3a4",
+          "role": "субстрат",
+          "rate": 0.2
+        }
+      ],
+      "side_effects": [
+        {
+          "name": "Серотониновый Синдром",
+          "severity": 2
+        },
+        {
+          "name": "Нарушения Сна",
+          "severity": 2
+        },
+        {
+          "name": "Тошнота",
+          "severity": 2
+        }
+      ]
+    },
+    "Имипрамин": {
+      "targets": [
+        {
+          "name": "Обратный Захват Норадреналина",
+          "effect_type": "ингибитор",
+          "potency": 0.98
+        },
+        {
+          "name": "Обратный Захват Серотонина",
+          "effect_type": "ингибитор",
+          "potency": 0.85
+        }
+      ],
+      "metabolism": [
+        {
+          "enzyme": "Cyp2d6",
+          "role": "субстрат",
+          "rate": 0.92
+        },
+        {
+          "enzyme": "Cyp2c19",
+          "role": "субстрат",
+          "rate": 0.65
+        }
+      ],
+      "side_effects": [
+        {
+          "name": "Антихолинергические Эффекты",
+          "severity": 4
+        },
+        {
+          "name": "Низкое Давление",
+          "severity": 3
+        },
+        {
+          "name": "Аритмии",
+          "severity": 2
+        }
+      ]
+    },
+    "Кломипрамин": {
+      "targets": [
+        {
+          "name": "Обратный Захват Серотонина",
+          "effect_type": "ингибитор",
+          "potency": 0.98
+        },
+        {
+          "name": "Обратный Захват Норадреналина",
+          "effect_type": "ингибитор",
+          "potency": 0.9
+        }
+      ],
+      "metabolism": [
+        {
+          "enzyme": "Cyp2d6",
+          "role": "субстрат",
+          "rate": 0.9
+        },
+        {
+          "enzyme": "Cyp1a2",
+          "role": "субстрат",
+          "rate": 0.3
+        }
+      ],
+      "side_effects": [
+        {
+          "name": "Сонливость",
+          "severity": 4
+        },
+        {
+          "name": "Антихолинергические Эффекты",
+          "severity": 4
+        },
+        {
+          "name": "Низкое Давление",
+          "severity": 2
+        }
+      ]
+    },
+    "Диазепам": {
+      "targets": [
+        {
+          "name": "Бензодиазепиновые Рецепторы",
+          "effect_type": "агонист",
+          "potency": 0.95
+        },
+        {
+          "name": "Гамк-а Рецепторы",
+          "effect_type": "модулятор",
+          "potency": 0.9
+        }
+      ],
+      "metabolism": [
+        {
+          "enzyme": "Cyp3a4",
+          "role": "субстрат",
+          "rate": 0.6
+        },
+        {
+          "enzyme": "Cyp2c19",
+          "role": "субстрат",
+          "rate": 0.5
+        }
+      ],
+      "side_effects": [
+        {
+          "name": "Сонливость",
+          "severity": 5
+        },
+        {
+          "name": "Мышечная Релаксация",
+          "severity": 4
+        },
+        {
+          "name": "Аддикция",
+          "severity": 3
+        }
+      ]
+    },
+    "Феназепам": {
+      "targets": [
+        {
+          "name": "Бензодиазепиновые Рецепторы",
+          "effect_type": "агонист",
+          "potency": 0.98
+        },
+        {
+          "name": "Гамк-а Рецепторы",
+          "effect_type": "модулятор",
+          "potency": 0.95
+        }
+      ],
+      "metabolism": [
+        {
+          "enzyme": "Печёночный Метаболизм",
+          "role": "путь",
+          "rate": 0.8
+        }
+      ],
+      "side_effects": [
+        {
+          "name": "Сонливость",
+          "severity": 5
+        },
+        {
+          "name": "Зависимость",
+          "severity": 4
+        },
+        {
+          "name": "Антероградная Амнезия",
+          "severity": 3
+        }
+      ]
+    },
+    "Омепразол": {
+      "targets": [
+        {
+          "name": "H K -атфаза",
+          "effect_type": "ингибитор",
+          "potency": 0.95
+        },
+        {
+          "name": "Протоны В Желудке",
+          "effect_type": "ингибитор",
+          "potency": 0.95
+        }
+      ],
+      "metabolism": [
+        {
+          "enzyme": "Cyp2c19",
+          "role": "субстрат",
+          "rate": 0.95
+        },
+        {
+          "enzyme": "Cyp3a4",
+          "role": "субстрат",
+          "rate": 0.3
+        }
+      ],
+      "side_effects": [
+        {
+          "name": "Гипомагниемия",
+          "severity": 2
+        },
+        {
+          "name": "Дефицит B12",
+          "severity": 2
+        },
+        {
+          "name": "Остеопороз",
+          "severity": 2
+        }
+      ]
+    },
+    "Ланзопразол": {
+      "targets": [
+        {
+          "name": "H K -атфаза",
+          "effect_type": "ингибитор",
+          "potency": 0.93
+        },
+        {
+          "name": "Секреция Соляной Кислоты",
+          "effect_type": "ингибитор",
+          "potency": 0.93
+        }
+      ],
+      "metabolism": [
+        {
+          "enzyme": "Cyp3a4",
+          "role": "субстрат",
+          "rate": 0.7
+        },
+        {
+          "enzyme": "Cyp2c19",
+          "role": "субстрат",
+          "rate": 0.6
+        }
+      ],
+      "side_effects": [
+        {
+          "name": "Дефицит Кальция",
+          "severity": 2
+        },
+        {
+          "name": "Дефицит B12",
+          "severity": 2
+        },
+        {
+          "name": "Гипомагниемия",
+          "severity": 2
+        }
+      ]
+    },
+    "Пантопразол": {
+      "targets": [
+        {
+          "name": "H K -атфаза",
+          "effect_type": "ингибитор",
+          "potency": 0.94
+        },
+        {
+          "name": "Желудочные Кислоты",
+          "effect_type": "ингибитор",
+          "potency": 0.94
+        }
+      ],
+      "metabolism": [
+        {
+          "enzyme": "Cyp2c19",
+          "role": "субстрат",
+          "rate": 0.8
+        }
+      ],
+      "side_effects": [
+        {
+          "name": "Диарея",
+          "severity": 2
+        },
+        {
+          "name": "Дефицит B12",
+          "severity": 2
+        },
+        {
+          "name": "Гипомагниемия",
+          "severity": 2
+        }
+      ]
+    },
+    "Фамотидин": {
+      "targets": [
+        {
+          "name": "H2-рецепторы",
+          "effect_type": "антагонист",
+          "potency": 0.95
+        },
+        {
+          "name": "Секреция Кислоты",
+          "effect_type": "ингибитор",
+          "potency": 0.95
+        }
+      ],
+      "metabolism": [
+        {
+          "enzyme": "Минимальный Печёночный",
+          "role": "метаболизм",
+          "rate": 0.1
+        }
+      ],
+      "side_effects": [
+        {
+          "name": "Диарея",
+          "severity": 1
+        },
+        {
+          "name": "Головная Боль",
+          "severity": 1
+        },
+        {
+          "name": "Гинекомастия Редкая",
+          "severity": 1
+        }
+      ]
+    },
+    "Циметидин": {
+      "targets": [
+        {
+          "name": "H2-рецепторы",
+          "effect_type": "антагонист",
+          "potency": 0.9
+        },
+        {
+          "name": "Секреция Кислоты",
+          "effect_type": "ингибитор",
+          "potency": 0.9
+        }
+      ],
+      "metabolism": [
+        {
+          "enzyme": "Cyp1a2",
+          "role": "ингибитор",
+          "rate": 0.8
+        },
+        {
+          "enzyme": "Cyp2d6",
+          "role": "ингибитор",
+          "rate": 0.7
+        },
+        {
+          "enzyme": "Cyp3a4",
+          "role": "ингибитор",
+          "rate": 0.6
+        }
+      ],
+      "side_effects": [
+        {
+          "name": "Гинекомастия",
+          "severity": 2
+        },
+        {
+          "name": "Спутанность Сознания",
+          "severity": 2
+        },
+        {
+          "name": "Гиперкреатинемия",
+          "severity": 1
+        }
+      ]
+    },
+    "Фуросемид": {
+      "targets": [
+        {
+          "name": "Na-k-2cl Котранспортер",
+          "effect_type": "ингибитор",
+          "potency": 0.98
+        },
+        {
+          "name": "Восходящее Колено Генле",
+          "effect_type": "блокатор",
+          "potency": 0.95
+        }
+      ],
+      "metabolism": [
+        {
+          "enzyme": "Печёночный Метаболизм",
+          "role": "путь",
+          "rate": 0.3
+        }
+      ],
+      "side_effects": [
+        {
+          "name": "Гипокалиемия",
+          "severity": 4
+        },
+        {
+          "name": "Низкое Давление",
+          "severity": 3
+        },
+        {
+          "name": "Гиперурикемия",
+          "severity": 2
+        }
+      ]
+    },
+    "Торасемид": {
+      "targets": [
+        {
+          "name": "Na-k-2cl Котранспортер",
+          "effect_type": "ингибитор",
+          "potency": 0.96
+        },
+        {
+          "name": "Восходящее Колено Генле",
+          "effect_type": "блокатор",
+          "potency": 0.92
+        }
+      ],
+      "metabolism": [
+        {
+          "enzyme": "Печёночный Метаболизм",
+          "role": "путь",
+          "rate": 0.5
+        }
+      ],
+      "side_effects": [
+        {
+          "name": "Гипокалиемия",
+          "severity": 3
+        },
+        {
+          "name": "Низкое Давление",
+          "severity": 2
+        },
+        {
+          "name": "Гиперурикемия",
+          "severity": 2
+        }
+      ]
+    },
+    "Гидрохлоротиазид": {
+      "targets": [
+        {
+          "name": "Na-cl Котранспортер",
+          "effect_type": "ингибитор",
+          "potency": 0.95
+        },
+        {
+          "name": "Дистальный Извитой Каналец",
+          "effect_type": "блокатор",
+          "potency": 0.9
+        }
+      ],
+      "metabolism": [
+        {
+          "enzyme": "Минимальный Печёночный",
+          "role": "метаболизм",
+          "rate": 0.05
+        }
+      ],
+      "side_effects": [
+        {
+          "name": "Гипокалиемия",
+          "severity": 3
+        },
+        {
+          "name": "Гипернатриемия",
+          "severity": 2
+        },
+        {
+          "name": "Гипергликемия",
+          "severity": 2
+        }
+      ]
+    },
+    "Индапамид": {
+      "targets": [
+        {
+          "name": "Na-cl Котранспортер",
+          "effect_type": "ингибитор",
+          "potency": 0.92
+        },
+        {
+          "name": "Гладкие Мышцы Сосудов",
+          "effect_type": "релаксация",
+          "potency": 0.7
+        }
+      ],
+      "metabolism": [
+        {
+          "enzyme": "Печёночный Метаболизм",
+          "role": "путь",
+          "rate": 0.8
+        }
+      ],
+      "side_effects": [
+        {
+          "name": "Гипокалиемия",
+          "severity": 2
+        },
+        {
+          "name": "Низкое Давление",
+          "severity": 2
+        },
+        {
+          "name": "Метаболические Эффекты",
+          "severity": 1
+        }
+      ]
+    }
+  }
+}
