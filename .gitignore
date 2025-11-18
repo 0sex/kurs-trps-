@@ -37,7 +37,6 @@ env/
 Thumbs.db
 
 # Database
-*.db
 *.sqlite
 *.sqlite3
 test_*.db
