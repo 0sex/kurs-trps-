@@ -1,0 +1,501 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/26.2.15 Chrome/134.0.6998.205 Electron/35.2.1 Safari/537.36" version="26.2.15">
+  <diagram name="Страница — 1" id="dD3f3mC_D8CY3x1QatGn">
+    <mxGraphModel dx="2194" dy="1368" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="2336" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="fTdylusPwaiLzNER2Xjs-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;endArrow=none;endFill=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="fTdylusPwaiLzNER2Xjs-4" target="fTdylusPwaiLzNER2Xjs-6">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="720" y="130" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-4" value="Начало" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.terminator;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="665" y="50" width="110" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-6" value="&lt;div&gt;a = load_drug_data(drug_a_id);&lt;/div&gt;&lt;div&gt;b = load_drug_data(drug_b_id)&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: light-dark(#ffffff, var(--ge-dark-color, #121212)); color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;mechanisms: List[str] = []&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;div&gt;comments: List[str] = []&lt;/div&gt;&lt;div&gt;metabolic_score = 0.0&lt;/div&gt;&lt;div&gt;dynamical_score = 0.0&lt;/div&gt;&lt;div&gt;toxicity_score = 0.0&lt;/div&gt;&lt;/div&gt;" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;" vertex="1" parent="1">
+          <mxGeometry x="620" y="140" width="200" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-7" value="&lt;span style=&quot;white-space-collapse: preserve;&quot;&gt;Найти shared_enz (общие ферменты)&lt;/span&gt;" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;" vertex="1" parent="1">
+          <mxGeometry x="620" y="270" width="200" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-8" value="" style="endArrow=none;html=1;rounded=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="fTdylusPwaiLzNER2Xjs-6" target="fTdylusPwaiLzNER2Xjs-7">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="790" y="250" as="sourcePoint" />
+            <mxPoint x="840" y="200" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-10" value="" style="verticalLabelPosition=bottom;verticalAlign=top;html=1;shape=hexagon;perimeter=hexagonPerimeter2;arcSize=6;size=0.0967741935483871;" vertex="1" parent="1">
+          <mxGeometry x="639.9999999999998" y="340" width="155" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-11" value="for ma, mb in shared_enz" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="657.4999999999998" y="340" width="125" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-13" value="if role_a == &#39;ингибитор&#39; and role_b == &#39;субстрат&#39;" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="650" y="390" width="140" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-14" value="&lt;div&gt;metabolic_score += 0.5&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;&amp;nbsp; mechanisms.append(f&quot;{ma[&#39;enzyme_name&#39;]}: ингибирование (A ингибирует B)&quot;)&lt;/span&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="640" y="490" width="160" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-15" value="&amp;nbsp;elif role_b == &#39;ингибитор&#39; and role_a == &#39;субстрат&#39;" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="650" y="590" width="140" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-16" value="&lt;div&gt;metabolic_score += 0.50&lt;/div&gt;&lt;div&gt;mechanisms.append(f&quot;{ma[&#39;enzyme_name&#39;]}: ингибирование (B ингибирует A)&quot;)&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="640" y="690" width="160" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-17" value="elif role_a == &#39;индуктор&#39; and role_b == &#39;субстрат&#39;" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="650" y="790" width="140" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-18" value="&lt;div&gt;metabolic_score += 0.25&lt;/div&gt;&lt;div&gt;mechanisms.append(f&quot;{ma[&#39;enzyme_name&#39;]}: индукция (A индуцирует B)&quot;)&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="640" y="890" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-19" value="elif role_b == &#39;индуктор&#39; and role_a == &#39;субстрат&#39;" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="650" y="980" width="140" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-20" value="&lt;div&gt;metabolic_score += 0.25&lt;/div&gt;&lt;div&gt;mechanisms.append(f&quot;{ma[&#39;enzyme_name&#39;]}: индукция (B индуцирует A)&quot;)&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="640" y="1090" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-21" value="&lt;div&gt;metabolic_score += 0.15&lt;/div&gt;&lt;div&gt;&amp;nbsp;mechanisms.append(f&quot;{ma[&#39;enzyme_name&#39;]}: оба препарата метаболизируются этим ферментом&quot;)&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="630" y="1190" width="180" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-22" value="" style="endArrow=none;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" edge="1" parent="1" source="fTdylusPwaiLzNER2Xjs-13" target="fTdylusPwaiLzNER2Xjs-11">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="590" y="520" as="sourcePoint" />
+            <mxPoint x="640" y="470" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-23" value="" style="endArrow=none;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" edge="1" parent="1" source="fTdylusPwaiLzNER2Xjs-14" target="fTdylusPwaiLzNER2Xjs-13">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="620" y="510" as="sourcePoint" />
+            <mxPoint x="670" y="460" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-45" value="Да" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="fTdylusPwaiLzNER2Xjs-23">
+          <mxGeometry x="0.2667" y="1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-31" value="" style="endArrow=none;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" edge="1" parent="1" source="fTdylusPwaiLzNER2Xjs-16" target="fTdylusPwaiLzNER2Xjs-15">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="620" y="720" as="sourcePoint" />
+            <mxPoint x="670" y="670" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-48" value="Да" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="fTdylusPwaiLzNER2Xjs-31">
+          <mxGeometry x="0.2571" y="1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-32" value="" style="endArrow=none;html=1;rounded=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" target="fTdylusPwaiLzNER2Xjs-15">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="720" y="780" as="sourcePoint" />
+            <mxPoint x="730" y="670" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="820" y="780" />
+              <mxPoint x="820" y="625" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-49" value="Нет" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="fTdylusPwaiLzNER2Xjs-32">
+          <mxGeometry x="0.3923" y="2" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-33" value="" style="endArrow=none;html=1;rounded=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" target="fTdylusPwaiLzNER2Xjs-17">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="720" y="970" as="sourcePoint" />
+            <mxPoint x="720" y="780" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="820" y="970" />
+              <mxPoint x="820" y="825" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-50" value="Нет" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="fTdylusPwaiLzNER2Xjs-33">
+          <mxGeometry x="0.0069" y="2" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-34" value="" style="endArrow=none;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" edge="1" parent="1" source="fTdylusPwaiLzNER2Xjs-18" target="fTdylusPwaiLzNER2Xjs-17">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="610" y="860" as="sourcePoint" />
+            <mxPoint x="660" y="810" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-52" value="Да" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="fTdylusPwaiLzNER2Xjs-34">
+          <mxGeometry x="0.2952" y="2" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-35" value="" style="endArrow=none;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" edge="1" parent="1" source="fTdylusPwaiLzNER2Xjs-20" target="fTdylusPwaiLzNER2Xjs-19">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="590" y="1010" as="sourcePoint" />
+            <mxPoint x="640" y="960" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-53" value="Да" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="fTdylusPwaiLzNER2Xjs-35">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-36" value="" style="endArrow=none;html=1;rounded=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" target="fTdylusPwaiLzNER2Xjs-19">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="720" y="1170" as="sourcePoint" />
+            <mxPoint x="810" y="1020" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="820" y="1170" />
+              <mxPoint x="820" y="1015" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-51" value="Нет" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="fTdylusPwaiLzNER2Xjs-36">
+          <mxGeometry x="0.2514" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-40" value="" style="endArrow=none;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" edge="1" parent="1" source="fTdylusPwaiLzNER2Xjs-19" target="fTdylusPwaiLzNER2Xjs-18">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="600" y="970" as="sourcePoint" />
+            <mxPoint x="600" y="940" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="720" y="970" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-41" value="" style="endArrow=none;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" edge="1" parent="1" source="fTdylusPwaiLzNER2Xjs-21" target="fTdylusPwaiLzNER2Xjs-20">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="600" y="1170" as="sourcePoint" />
+            <mxPoint x="510" y="1170" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="720" y="1170" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-44" value="&lt;span style=&quot;white-space-collapse: preserve;&quot;&gt;Найти shared_targets (общие мишени)&lt;/span&gt;" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;" vertex="1" parent="1">
+          <mxGeometry x="940" y="270" width="160" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-57" value="" style="endArrow=none;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" edge="1" parent="1" source="fTdylusPwaiLzNER2Xjs-11" target="fTdylusPwaiLzNER2Xjs-7">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="490" y="540" as="sourcePoint" />
+            <mxPoint x="540" y="490" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-58" value="" style="endArrow=none;html=1;rounded=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" target="fTdylusPwaiLzNER2Xjs-13">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="720" y="580" as="sourcePoint" />
+            <mxPoint x="520" y="480" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="820" y="580" />
+              <mxPoint x="820" y="425" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-59" value="нет" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="fTdylusPwaiLzNER2Xjs-58">
+          <mxGeometry x="0.0077" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-60" value="" style="endArrow=none;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" edge="1" parent="1" source="fTdylusPwaiLzNER2Xjs-15" target="fTdylusPwaiLzNER2Xjs-14">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="600" y="580" as="sourcePoint" />
+            <mxPoint x="570" y="580" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="720" y="580" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-61" value="" style="endArrow=none;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="fTdylusPwaiLzNER2Xjs-10" target="fTdylusPwaiLzNER2Xjs-21">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="600" y="350" as="sourcePoint" />
+            <mxPoint x="560" y="1010" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="600" y="355" />
+              <mxPoint x="600" y="1280" />
+              <mxPoint x="720" y="1280" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-62" value="" style="endArrow=none;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" edge="1" parent="1" source="fTdylusPwaiLzNER2Xjs-17" target="fTdylusPwaiLzNER2Xjs-16">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="600" y="780" as="sourcePoint" />
+            <mxPoint x="520" y="770" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="720" y="780" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-63" value="" style="endArrow=none;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="fTdylusPwaiLzNER2Xjs-10" target="fTdylusPwaiLzNER2Xjs-44">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="920" y="340" as="sourcePoint" />
+            <mxPoint x="880" y="170" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="880" y="355" />
+              <mxPoint x="880" y="305" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-64" value="" style="verticalLabelPosition=bottom;verticalAlign=top;html=1;shape=hexagon;perimeter=hexagonPerimeter2;arcSize=6;size=0.0967741935483871;" vertex="1" parent="1">
+          <mxGeometry x="939.9999999999998" y="370" width="155" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-65" value="&amp;nbsp;for ta, tb in shared_targets" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="957.4999999999998" y="370" width="125" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-66" value="if et_a == &#39;ингибитор&#39; and et_b == &#39;ингибитор&#39;" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="950" y="420" width="140" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-67" value="&lt;div&gt;dynamical_score += 0.40&lt;/div&gt;&lt;div&gt;&amp;nbsp;mechanisms[-1] = f {target_name}: суммарное ингибирование&quot;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="940" y="520" width="160" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-68" value="&lt;div&gt;&amp;nbsp;elif et_a == &#39;агонист&#39; and et_b == &#39;агонист&#39;:&lt;/div&gt;" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="950" y="620" width="140" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-69" value="&lt;div&gt;dynamical_score += 0.35&lt;/div&gt;&lt;div&gt;mechanisms[-1] = f&quot;{target_name}: суммарная активация&quot;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="940" y="720" width="160" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-70" value="elif (et_a in (&#39;агонист&#39;,&#39;активатор&#39;) and et_b in (&#39;антагонист&#39;,&#39;ингибитор&#39;)" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="930" y="820" width="180" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-71" value="&lt;div&gt;dynamical_score += 0.30&lt;/div&gt;&lt;div&gt;mechanisms[-1] = f {target_name}: противоположное действие&quot;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="940" y="920" width="160" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-72" value="" style="endArrow=none;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" edge="1" parent="1" source="fTdylusPwaiLzNER2Xjs-66" target="fTdylusPwaiLzNER2Xjs-65">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="890" y="550" as="sourcePoint" />
+            <mxPoint x="940" y="500" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-73" value="" style="endArrow=none;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" edge="1" parent="1" source="fTdylusPwaiLzNER2Xjs-67" target="fTdylusPwaiLzNER2Xjs-66">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="920" y="540" as="sourcePoint" />
+            <mxPoint x="970" y="490" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-74" value="Да" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="fTdylusPwaiLzNER2Xjs-73">
+          <mxGeometry x="0.2667" y="1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-75" value="" style="endArrow=none;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" edge="1" parent="1" source="fTdylusPwaiLzNER2Xjs-69" target="fTdylusPwaiLzNER2Xjs-68">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="920" y="750" as="sourcePoint" />
+            <mxPoint x="970" y="700" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-76" value="Да" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="fTdylusPwaiLzNER2Xjs-75">
+          <mxGeometry x="0.2571" y="1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-77" value="" style="endArrow=none;html=1;rounded=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" target="fTdylusPwaiLzNER2Xjs-68">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="1020" y="810" as="sourcePoint" />
+            <mxPoint x="1030" y="700" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="1120" y="810" />
+              <mxPoint x="1120" y="655" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-78" value="Нет" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="fTdylusPwaiLzNER2Xjs-77">
+          <mxGeometry x="0.3923" y="2" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-80" value="" style="endArrow=none;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" edge="1" parent="1" source="fTdylusPwaiLzNER2Xjs-71" target="fTdylusPwaiLzNER2Xjs-70">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="910" y="890" as="sourcePoint" />
+            <mxPoint x="960" y="840" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-81" value="Да" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="fTdylusPwaiLzNER2Xjs-80">
+          <mxGeometry x="0.2952" y="2" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-82" value="" style="endArrow=none;html=1;rounded=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" target="fTdylusPwaiLzNER2Xjs-66">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="1020" y="610" as="sourcePoint" />
+            <mxPoint x="820" y="510" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="1120" y="610" />
+              <mxPoint x="1120" y="455" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-83" value="нет" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="fTdylusPwaiLzNER2Xjs-82">
+          <mxGeometry x="0.0077" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-84" value="" style="endArrow=none;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" edge="1" parent="1" source="fTdylusPwaiLzNER2Xjs-68" target="fTdylusPwaiLzNER2Xjs-67">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="900" y="610" as="sourcePoint" />
+            <mxPoint x="870" y="610" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="1020" y="610" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-85" value="" style="endArrow=none;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" edge="1" parent="1" source="fTdylusPwaiLzNER2Xjs-70" target="fTdylusPwaiLzNER2Xjs-69">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="900" y="810" as="sourcePoint" />
+            <mxPoint x="820" y="800" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="1020" y="810" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-86" value="&lt;div&gt;dynamical_score += 0.10&lt;/div&gt;&lt;div&gt;mechanisms[-1] = f&quot;{target_name}: оба препарата действуют на эту цель&quot;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="930" y="1020" width="180" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-87" value="" style="endArrow=none;html=1;rounded=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" target="fTdylusPwaiLzNER2Xjs-70">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="1020" y="1000" as="sourcePoint" />
+            <mxPoint x="1110" y="860" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="1140" y="1000" />
+              <mxPoint x="1140" y="855" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-88" value="Нет" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="fTdylusPwaiLzNER2Xjs-87">
+          <mxGeometry x="0.3923" y="2" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-89" value="" style="endArrow=none;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" edge="1" parent="1" source="fTdylusPwaiLzNER2Xjs-86" target="fTdylusPwaiLzNER2Xjs-71">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="900" y="1040" as="sourcePoint" />
+            <mxPoint x="950" y="990" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-90" value="" style="endArrow=none;html=1;rounded=0;entryX=0.474;entryY=1.031;entryDx=0;entryDy=0;entryPerimeter=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="fTdylusPwaiLzNER2Xjs-64" target="fTdylusPwaiLzNER2Xjs-86">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="900" y="500" as="sourcePoint" />
+            <mxPoint x="1070" y="1140" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="910" y="385" />
+              <mxPoint x="910" y="1120" />
+              <mxPoint x="1015" y="1120" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-91" value="" style="endArrow=none;html=1;rounded=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="fTdylusPwaiLzNER2Xjs-44" target="fTdylusPwaiLzNER2Xjs-65">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="1160" y="390" as="sourcePoint" />
+            <mxPoint x="1210" y="340" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-92" value="" style="endArrow=none;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="fTdylusPwaiLzNER2Xjs-64" target="fTdylusPwaiLzNER2Xjs-93">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="1200" y="400" as="sourcePoint" />
+            <mxPoint x="1120" y="1210" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="1160" y="385" />
+              <mxPoint x="1160" y="1160" />
+              <mxPoint x="1020" y="1160" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-93" value="&lt;span style=&quot;white-space-collapse: preserve;&quot;&gt;Найти shared_effects (общие побочные эффекты)&lt;/span&gt;" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;" vertex="1" parent="1">
+          <mxGeometry x="920" y="1190" width="200" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-94" value="" style="endArrow=none;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" edge="1" parent="1" source="fTdylusPwaiLzNER2Xjs-98" target="fTdylusPwaiLzNER2Xjs-93">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="1240" y="300" as="sourcePoint" />
+            <mxPoint x="1070" y="1280" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="1345" y="260" />
+              <mxPoint x="1180" y="260" />
+              <mxPoint x="1180" y="1280" />
+              <mxPoint x="1020" y="1280" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-97" value="" style="verticalLabelPosition=bottom;verticalAlign=top;html=1;shape=hexagon;perimeter=hexagonPerimeter2;arcSize=6;size=0.0967741935483871;" vertex="1" parent="1">
+          <mxGeometry x="1267.4999999999998" y="280" width="155" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-98" value="&amp;nbsp;for ta, tb in shared_targets" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="1282.4999999999998" y="280" width="125" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-99" value="&lt;span style=&quot;white-space-collapse: preserve;&quot;&gt;level_a = int(ea.get(&#39;level&#39;) or 0)&lt;br&gt;level_b = int(eb.get(&#39;level&#39;) or 0)&lt;/span&gt;&lt;div&gt;&lt;span style=&quot;white-space-collapse: preserve;&quot;&gt;effect_name = ea.get(&#39;effect_name&#39;, &#39;Unknown&#39;)&lt;/span&gt;&lt;/div&gt;" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;" vertex="1" parent="1">
+          <mxGeometry x="1220" y="335" width="250" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-100" value="" style="endArrow=none;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" edge="1" parent="1" source="fTdylusPwaiLzNER2Xjs-99" target="fTdylusPwaiLzNER2Xjs-98">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="1310" y="470" as="sourcePoint" />
+            <mxPoint x="1360" y="420" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-101" value="toxicity_score += (level_a + level_b) / 5.0" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="1235" y="420" width="220" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-102" value="mechanisms.append(f&quot;{effect_name}: оба препарата могут вызвать этот побочный эффект (уровень {level_a}+{level_b})&quot;)" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="1235" y="480" width="220" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-103" value="" style="endArrow=none;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" edge="1" parent="1" source="fTdylusPwaiLzNER2Xjs-101" target="fTdylusPwaiLzNER2Xjs-99">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="1310" y="630" as="sourcePoint" />
+            <mxPoint x="1360" y="580" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-104" value="" style="endArrow=none;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" edge="1" parent="1" source="fTdylusPwaiLzNER2Xjs-102" target="fTdylusPwaiLzNER2Xjs-101">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="1310" y="510" as="sourcePoint" />
+            <mxPoint x="1360" y="460" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-105" value="" style="endArrow=none;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="fTdylusPwaiLzNER2Xjs-97" target="fTdylusPwaiLzNER2Xjs-102">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="1200" y="300" as="sourcePoint" />
+            <mxPoint x="1340" y="570" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="1200" y="295" />
+              <mxPoint x="1200" y="560" />
+              <mxPoint x="1345" y="560" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-107" value="" style="endArrow=none;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.998;entryY=0.463;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="fTdylusPwaiLzNER2Xjs-97" target="fTdylusPwaiLzNER2Xjs-109">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="1470" y="290" as="sourcePoint" />
+            <mxPoint x="1405" y="610" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="1490" y="295" />
+              <mxPoint x="1490" y="600" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-109" value="КЛИНИЧЕСКИЕ ПРАВИЛА (SSRI+ACEI, NSAID+ACEI, CYP-взаимодействия и т.д.)" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;" vertex="1" parent="1">
+          <mxGeometry x="1245" y="570" width="200" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-110" value="raw_score = W1*Met + W2*Dyn + W3*Tox" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="1285" y="660" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-111" value="" style="endArrow=none;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" edge="1" parent="1" source="fTdylusPwaiLzNER2Xjs-110" target="fTdylusPwaiLzNER2Xjs-109">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="1200" y="800" as="sourcePoint" />
+            <mxPoint x="1250" y="750" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-113" value="return result" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;" vertex="1" parent="1">
+          <mxGeometry x="1285" y="737.5" width="120" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-114" value="Конец" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.terminator;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="1289.9999999999998" y="800" width="110" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-115" value="" style="endArrow=none;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" edge="1" parent="1" source="fTdylusPwaiLzNER2Xjs-113" target="fTdylusPwaiLzNER2Xjs-110">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="1320" y="770" as="sourcePoint" />
+            <mxPoint x="1370" y="720" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fTdylusPwaiLzNER2Xjs-116" value="" style="endArrow=none;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;exitPerimeter=0;" edge="1" parent="1" source="fTdylusPwaiLzNER2Xjs-114" target="fTdylusPwaiLzNER2Xjs-113">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="1310" y="920" as="sourcePoint" />
+            <mxPoint x="1360" y="870" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -98,7 +98,7 @@ class Database:
         conn.commit()
         conn.close()
 
-    def add_drug(self, name: str, substance: str, form: str, manufacturer: str, price: float, contraindications: str = '', description: str = '') -> int:
+    def add_drug(self, name: str, substance: str, form: str, manufacturer: str, price: float, contraindications: str = '', description: str = '', dosage: str = '', brand: str = '', targets_json: List[Dict] = None, metabolism_json: List[Dict] = None, side_effects_json: List[Dict] = None) -> int:
         conn = self._get_connection()
         cursor = conn.cursor()
         try:
@@ -107,7 +107,21 @@ class Database:
                 (name, substance, form, manufacturer, price, contraindications, description)
             )
             conn.commit()
-            return cursor.lastrowid
+            drug_id = cursor.lastrowid
+            
+            if targets_json:
+                for target in targets_json:
+                    self.add_target(drug_id, target.get('name', ''), target.get('effect_type', ''), target.get('potency', 0.0))
+            
+            if metabolism_json:
+                for met in metabolism_json:
+                    self.add_metabolism(drug_id, met.get('enzyme', ''), met.get('role', ''), met.get('rate', 0.0))
+            
+            if side_effects_json:
+                for effect in side_effects_json:
+                    self.add_effect_profile(drug_id, effect.get('name', ''), effect.get('severity', 0))
+            
+            return drug_id
         finally:
             conn.close()
 
@@ -322,6 +336,9 @@ class Database:
         finally:
             conn.close()
 
+    def close_connection(self):
+        pass
+
     def clear_interaction_cache(self):
         conn = self._get_connection()
         cursor = conn.cursor()
@@ -342,7 +359,6 @@ class Database:
         self.populate_sample_data()
 
     def populate_pharmacology_if_empty(self):
-        """Load pharmacology data from external pharmacology_data.json file."""
         conn = self._get_connection()
         cursor = conn.cursor()
         try:
@@ -351,34 +367,152 @@ class Database:
             if count > 0:
                 conn.close()
                 return
-            
-            # Try to load from external file first
-            pharmacology_file = "pharmacology_data.json"
-            if os.path.exists(pharmacology_file):
-                with open(pharmacology_file, 'r', encoding='utf-8') as f:
-                    data = json.load(f)
-                
-                pharmacology_data = data.get('pharmacology_data', {})
-                
-                for drug_name, drug_data in pharmacology_data.items():
-                    cursor.execute("SELECT id FROM drugs WHERE name = ?", (drug_name,))
-                    rows = cursor.fetchall()
-                    for row in rows:
-                        did = row[0]
-                        for target in drug_data.get('targets', []):
-                            cursor.execute("INSERT OR IGNORE INTO drug_targets (drug_id, target_name, effect_type, potency) VALUES (?, ?, ?, ?)",
-                                         (did, target['name'], target['effect_type'], target['potency']))
-                        for metabol in drug_data.get('metabolism', []):
-                            cursor.execute("INSERT OR IGNORE INTO drug_metabolism (drug_id, enzyme_name, role, rate) VALUES (?, ?, ?, ?)",
-                                         (did, metabol['enzyme'], metabol['role'], metabol['rate']))
-                        for effect in drug_data.get('side_effects', []):
-                            cursor.execute("INSERT OR IGNORE INTO drug_effect_profile (drug_id, effect_name, level) VALUES (?, ?, ?)",
-                                         (did, effect['name'], effect['severity']))
-            else:
-                # Fallback: use embedded minimal data
-                print(f"⚠ Файл {pharmacology_file} не найден. Используются встроенные данные.")
-                pass
-            
+            sample_map =  {
+        
+                    'Ибупрофен': {
+                        'targets': [('COX1', 'ингибитор', 0.9), ('COX2', 'ингибитор', 0.95), ('PGE2', 'ингибитор', 0.7)],
+                        'metabolism': [('CYP2C9', 'субстрат', 0.8), ('CYP2C8', 'субстрат', 0.5)],
+                        'effects': [('ЖК-кровотечение', 4), ('Гепатотоксичность', 2), ('Нефротоксичность', 3)]
+                    },
+
+                    'Парацетамол': {
+                        'targets': [('COX3', 'ингибитор', 0.6), ('TRPV1', 'модулятор', 0.4)],
+                        'metabolism': [('CYP2E1', 'субстрат', 0.9), ('CYP1A2', 'субстрат', 0.4)],
+                        'effects': [('Гепатотоксичность', 5), ('Сыпь', 2)]
+                    },
+
+                    'Амлодипин': {
+                        'targets': [('L-type calcium channel', 'ингибитор', 0.85), ('LTCC', 'блокатор', 0.8)],
+                        'metabolism': [('CYP3A4', 'субстрат', 0.95), ('CYP3A5', 'субстрат', 0.4)],
+                        'effects': [('Гипотензия', 3), ('Отёки', 2), ('Головная боль', 2)]
+                    },
+
+                    'Аспирин Кардио': {
+                        'targets': [('COX1', 'ингибитор', 0.99), ('Агрегация тромбоцитов', 'ингибитор', 0.95)],
+                        'metabolism': [('CYP2C9', 'ингибитор', 0.3), ('Эстеразы', 'субстрат', 0.8)],
+                        'effects': [('ЖК-кровотечение', 5), ('Язвообразование', 4)]
+                    },
+
+                    'Метопролол': {
+                        'targets': [('Beta-1 adrenergic', 'антагонист', 0.95), ('Контроль ЧСС', 'снижение', 0.9)],
+                        'metabolism': [('CYP2D6', 'субстрат', 0.9), ('Конъюгация', 'процесс', 0.5)],
+                        'effects': [('Брадикардия', 3), ('Гипотензия', 2), ('Утомляемость', 2)]
+                    },
+
+                    'Атенолол': {
+                        'targets': [('Beta-1 adrenergic', 'антагонист', 0.92), ('Частота сердцебиений', 'снижение', 0.88)],
+                        'metabolism': [('Почечная экскреция', 'путь', 0.95), ('Минимальный печёночный', 'метаболизм', 0.1)],
+                        'effects': [('Брадикардия', 3), ('Гипотензия', 2)]
+                    },
+
+                    'Нимодипин': {
+                        'targets': [('Церебральный кальциевый канал', 'блокатор', 0.95), ('L-VSCC', 'ингибитор', 0.9)],
+                        'metabolism': [('CYP3A4', 'субстрат', 0.95), ('Первичный проход', 'метаболизм', 0.8)],
+                        'effects': [('Церебральная вазодилатация', 5), ('Гипотензия', 2)]
+                    },
+
+                    'Спиронолактон': {
+                        'targets': [('Альдостероновый рецептор', 'антагонист', 0.95), ('Задержка K+', 'эффект', 0.9)],
+                        'metabolism': [('CYP3A4', 'субстрат', 0.7), ('Печёночный метаболизм', 'активные метаболиты', 0.8)],
+                        'effects': [('Гиперкалиемия', 4), ('Гинекомастия', 2)]
+                    },
+
+                    'Дилтиазем': {
+                        'targets': [('Кальциевый канал L-типа', 'ингибитор', 0.9), ('AV-узел', 'замедление', 0.85)],
+                        'metabolism': [('CYP3A4', 'субстрат', 0.95), ('CYP3A5', 'субстрат', 0.3)],
+                        'effects': [('Брадикардия', 3), ('AV-блокада', 2), ('Отёки', 2)]
+                    },
+
+                    'Верапамил': {
+                        'targets': [('Кальциевый канал L-типа', 'ингибитор', 0.92), ('SA/AV узлы', 'эффект', 0.9)],
+                        'metabolism': [('CYP3A4', 'субстрат', 0.9), ('CYP1A2', 'субстрат', 0.3)],
+                        'effects': [('Запор', 4), ('AV-блокада', 3), ('Гипотензия', 2)]
+                    },
+
+                    'Флуоксетин': {
+                        'targets': [('SERT', 'ингибитор', 0.95), ('Обратный захват серотонина', 'блокатор', 0.95)],
+                        'metabolism': [('CYP2D6', 'субстрат', 0.9), ('CYP2C9', 'субстрат', 0.4)],
+                        'effects': [('Серотониновый синдром', 2), ('Гипонатриемия', 2)]
+                    },
+
+                    'Сертралин': {
+                        'targets': [('SERT', 'ингибитор', 0.93), ('Обратный захват допамина', 'слабый ингибитор', 0.3)],
+                        'metabolism': [('CYP2D6', 'субстрат', 0.7), ('CYP3A4', 'субстрат', 0.3)],
+                        'effects': [('Серотониновый синдром', 2), ('Сексуальная дисфункция', 3)]
+                    },
+
+                    'Амитриптилин': {
+                        'targets': [('Обратный захват норадреналина', 'ингибитор', 0.95), ('Обратный захват серотонина', 'ингибитор', 0.8)],
+                        'metabolism': [('CYP2D6', 'субстрат', 0.9), ('CYP2C19', 'субстрат', 0.7)],
+                        'effects': [('Антихолинергические эффекты', 4), ('Кардиотоксичность', 3), ('Гипотензия', 3)]
+                    },
+
+                    'Метформин': {
+                        'targets': [('AMPK', 'активатор', 0.8), ('Глюконеогенез', 'ингибитор', 0.85)],
+                        'metabolism': [('Нет печёночного', 'метаболизма', 0.0), ('Почечная экскреция', 'основная', 0.95)],
+                        'effects': [('ЖК-расстройства', 3), ('Лактацидоз', 1), ('Дефицит B12', 2)]
+                    },
+
+                    'Глибенкламид': {
+                        'targets': [('Калиевый канал', 'блокатор', 0.95), ('Секреция инсулина', 'стимулятор', 0.9)],
+                        'metabolism': [('CYP3A4', 'субстрат', 0.8), ('CYP2C9', 'субстрат', 0.6)],
+                        'effects': [('Гипогликемия', 4), ('Прибавка в весе', 3)]
+                    },
+
+                    'Статины': {
+                        'targets': [('HMG-CoA редуктаза', 'ингибитор', 0.95)],
+                        'metabolism': [('CYP3A4', 'субстрат', 0.85)],
+                        'effects': [('Миопатия', 2), ('Дисфункция печени', 1)]
+                    },
+
+                    'Лизиноприл': {
+                        'targets': [('АПФ', 'ингибитор', 0.95), ('Потенцирование кининов', 'эффект', 0.8)],
+                        'metabolism': [('Нет печёночного', 'метаболизма', 0.0), ('Почечная экскреция', 'основная', 0.95)],
+                        'effects': [('Кашель', 3), ('Ангиоотёк', 1), ('Гиперкалиемия', 2)]
+                    },
+
+                    'Эналаприл': {
+                        'targets': [('АПФ', 'ингибитор', 0.93), ('Ангиотензин II', 'снижение', 0.9)],
+                        'metabolism': [('Гидролиз эстеразами', 'пролекарство', 0.95), ('Почечная экскреция', 'активный метаболит', 0.9)],
+                        'effects': [('Кашель', 3), ('Гипотензия', 2)]
+                    },
+
+                    'Лозартан': {
+                        'targets': [('AT1-рецептор', 'антагонист', 0.95), ('Ангиотензин II', 'блокатор', 0.95)],
+                        'metabolism': [('CYP2C9', 'субстрат', 0.8), ('Глюкуронирование', 'путь', 0.6)],
+                        'effects': [('Гиперкалиемия', 2), ('Гипотензия', 2)]
+                    },
+
+                    'Валсартан': {
+                        'targets': [('AT1-рецептор', 'антагонист', 0.94), ('Ангиотензин II', 'блокирование', 0.93)],
+                        'metabolism': [('CYP2C9', 'субстрат', 0.7), ('CYP3A4', 'незначительно', 0.2)],
+                        'effects': [('Гиперкалиемия', 2), ('Головокружение', 2)]
+                    },
+
+                    'ДПП-4 ингибиторы': {
+                        'targets': [('Фермент DPP-4', 'ингибитор', 0.95)],
+                        'metabolism': [('CYP3A4', 'субстрат', 0.6)],
+                        'effects': [('Панкреатит', 1), ('Гипогликемия редкая', 1)]
+                    },
+
+                    'Инсулины': {
+                        'targets': [('Инсулиновый рецептор', 'агонист', 1.0), ('Поглощение глюкозы', 'стимулятор', 1.0)],
+                        'metabolism': [('Протеазное расщепление', 'основной путь', 0.9)],
+                        'effects': [('Гипогликемия', 5), ('Липодистрофия', 2)]
+                    }
+                }
+
+            for name, pdata in sample_map.items():
+                cursor.execute("SELECT id FROM drugs WHERE name LIKE ?", (f'%{name}%',))
+                rows = cursor.fetchall()
+                for row in rows:
+                    did = row[0]
+                    for tname, etype, pot in pdata.get('targets', []):
+                        cursor.execute("INSERT OR IGNORE INTO drug_targets (drug_id, target_name, effect_type, potency) VALUES (?, ?, ?, ?)", (did, tname, etype, pot))
+                    for ename, role, rate in pdata.get('metabolism', []):
+                        cursor.execute("INSERT OR IGNORE INTO drug_metabolism (drug_id, enzyme_name, role, rate) VALUES (?, ?, ?, ?)", (did, ename, role, rate))
+                    for ename, lvl in pdata.get('effects', []):
+                        cursor.execute("INSERT OR IGNORE INTO drug_effect_profile (drug_id, effect_name, level) VALUES (?, ?, ?)", (did, ename, lvl))
             conn.commit()
             conn.close()
             try:
