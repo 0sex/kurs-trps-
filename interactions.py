@@ -79,38 +79,228 @@ class InteractionAnalyzer:
     def __init__(self, normalizer: NormalizationStrategy = None):
         self.normalizer = normalizer or DEFAULT_NORMALIZER
 
+        # Словари для определения роли вещества
+        self.ROLE_MAPPINGS = {
+            'inhibitor': ['ингибитор', 'замедление', 'снижение', 'inhibitor'],
+            'inducer': ['активатор', 'стимулятор', 'индуктор', 'inducer', 'activator'],
+            'substrate': ['субстрат', 'substrate'],
+            'blocker': ['блокатор', 'антагонист', 'blocker', 'antagonist'],
+            'agonist': ['агонист', 'миметик', 'agonist'],
+        }
+
+        # Словарь весов для силы взаимодействия
+        self.STRENGTH_WEIGHTS = {
+            'слабый': 0.5,
+            'weak': 0.5,
+            'сильный': 1.5,
+            'strong': 1.5,
+            'селективный': 1.0, # Селективность важна, но не всегда усиливает риск
+        }
+
+    def _parse_entry(self, raw_text: str) -> dict:
+        """
+        Разбирает строку фармакологии на компоненты.
+        Пример: "слабый ингибитор CYP3A4" -> {'target': 'cyp3a4', 'role': 'inhibitor', 'strength': 0.5}
+        """
+        text = str(raw_text).lower()
+        
+        # 1. Определяем силу (вес)
+        strength = 1.0
+        for keyword, weight in self.STRENGTH_WEIGHTS.items():
+            if keyword in text:
+                strength = weight
+                break # Берем первое совпадение модификатора
+        
+        # 2. Определяем роль
+        role = 'unknown'
+        for r_key, keywords in self.ROLE_MAPPINGS.items():
+            if any(k in text for k in keywords):
+                role = r_key
+                break
+        
+        # 3. Определяем мишень (удаляем служебные слова и оставляем название)
+        # Собираем все стоп-слова
+        all_keywords = set()
+        for k_list in self.ROLE_MAPPINGS.values():
+            all_keywords.update(k_list)
+        all_keywords.update(self.STRENGTH_WEIGHTS.keys())
+        all_keywords.add('эффект') # Слово-паразит в данном контексте
+        
+        # Удаляем ключевые слова из текста, чтобы осталось только название фермента/рецептора
+        cleaned_text = text
+        for k in all_keywords:
+            cleaned_text = cleaned_text.replace(k, "")
+        
+        # Нормализуем название мишени
+        target_name = self.normalizer.normalize(cleaned_text)
+        
+        # Если название слишком короткое после очистки, возможно это просто описание эффекта без мишени
+        if len(target_name) < 2: 
+            target_name = "systemic"
+
+        return {'target': target_name, 'role': role, 'strength': strength, 'original': raw_text}
+
     def analyze(self, pharm_a: Dict[str, Any], pharm_b: Dict[str, Any], drug_a_name: str, drug_b_name: str) -> Tuple[float, List[str], List[str]]:
         score = 0.0
         mechanisms = []
         comments = []
-        metab_a = pharm_a.get('metabolism', [])
-        metab_b = pharm_b.get('metabolism', [])
-        score_m, mech_m, comm_m = self._analyze_metabolic(metab_a, metab_b)
-        score += score_m
-        mechanisms += mech_m
-        comments += comm_m
-        targets_a = pharm_a.get('targets', [])
-        targets_b = pharm_b.get('targets', [])
-        score_d, mech_d, comm_d = self._analyze_dynamical(targets_a, targets_b)
-        score += score_d
-        mechanisms += mech_d
-        comments += comm_d
+
+        # Парсим данные один раз
+        meta_a_parsed = [self._parse_entry(m) for m in pharm_a.get('metabolism', [])]
+        meta_b_parsed = [self._parse_entry(m) for m in pharm_b.get('metabolism', [])]
+        
+        targ_a_parsed = [self._parse_entry(t) for t in pharm_a.get('targets', [])]
+        targ_b_parsed = [self._parse_entry(t) for t in pharm_b.get('targets', [])]
+
+        # Запускаем анализы
+        s_m, m_m, c_m = self._analyze_metabolic(meta_a_parsed, meta_b_parsed, drug_a_name, drug_b_name)
+        score += s_m
+        mechanisms.extend(m_m)
+        comments.extend(c_m)
+
+        s_d, m_d, c_d = self._analyze_dynamical(targ_a_parsed, targ_b_parsed, drug_a_name, drug_b_name)
+        score += s_d
+        mechanisms.extend(m_d)
+        comments.extend(c_d)
+
+        # Токсичность анализируем по старой логике (текстовое пересечение), 
+        # так как там обычно описания симптомов, а не мишеней
         effects_a = pharm_a.get('effects', [])
         effects_b = pharm_b.get('effects', [])
-        score_t, mech_t, comm_t = self._analyze_toxicity(effects_a, effects_b, drug_a_name, drug_b_name)
-        score += score_t
-        mechanisms += mech_t
-        comments += comm_t
+        s_t, m_t, c_t = self._analyze_toxicity(effects_a, effects_b, drug_a_name, drug_b_name)
+        score += s_t
+        mechanisms.extend(m_t)
+        comments.extend(c_t)
+
+        return min(score, 1.0), mechanisms, comments
+
+    def _analyze_metabolic(self, metab_a: List[dict], metab_b: List[dict], name_a: str, name_b: str):
+        score = 0.0
+        mechanisms = []
+        comments = []
+        
+        # Создаем карту ферментов для быстрого поиска
+        # Структура: {'cyp3a4': [{'role': 'inhibitor', 'strength': 1.0, ...}], ...}
+        def map_enzymes(parsed_list):
+            mapping = {}
+            for item in parsed_list:
+                t = item['target']
+                if t not in mapping: mapping[t] = []
+                mapping[t].append(item)
+            return mapping
+
+        map_a = map_enzymes(metab_a)
+        map_b = map_enzymes(metab_b)
+        
+        common_enzymes = set(map_a.keys()) & set(map_b.keys())
+        
+        for enz in common_enzymes:
+            if enz == 'systemic': continue # Пропускаем общие описания
+
+            list_a = map_a[enz]
+            list_b = map_b[enz]
+
+            for item_a in list_a:
+                for item_b in list_b:
+                    # Сценарий 1: Ингибирование метаболизма
+                    # А (Ингибитор) + Б (Субстрат)
+                    if item_a['role'] == 'inhibitor' and item_b['role'] == 'substrate':
+                        risk_score = 0.4 * item_a['strength']
+                        score += risk_score
+                        mechanisms.append(f"{name_a} ингибирует {enz.upper()}, метаболизирующий {name_b}")
+                        comments.append(f"Риск повышения концентрации {name_b} и токсичности")
+
+                    elif item_b['role'] == 'inhibitor' and item_a['role'] == 'substrate':
+                        risk_score = 0.4 * item_b['strength']
+                        score += risk_score
+                        mechanisms.append(f"{name_b} ингибирует {enz.upper()}, метаболизирующий {name_a}")
+                        comments.append(f"Риск повышения концентрации {name_a} и токсичности")
+                    
+                    # Сценарий 2: Индукция (ускорение) метаболизма
+                    if item_a['role'] == 'inducer' and item_b['role'] == 'substrate':
+                        risk_score = 0.3 * item_a['strength']
+                        score += risk_score
+                        mechanisms.append(f"{name_a} стимулирует {enz.upper()}, разрушающий {name_b}")
+                        comments.append(f"Риск снижения эффективности {name_b}")
+
+                    elif item_b['role'] == 'inducer' and item_a['role'] == 'substrate':
+                        risk_score = 0.3 * item_b['strength']
+                        score += risk_score
+                        mechanisms.append(f"{name_b} стимулирует {enz.upper()}, разрушающий {name_a}")
+                        comments.append(f"Риск снижения эффективности {name_a}")
+
         return score, mechanisms, comments
 
-    def _analyze_metabolic(self, metab_a, metab_b):
-        return 0.0, [], []
+    def _analyze_dynamical(self, targets_a: List[dict], targets_b: List[dict], name_a: str, name_b: str):
+        score = 0.0
+        mechanisms = []
+        comments = []
+        
+        # Сравниваем каждую цель с каждой
+        for item_a in targets_a:
+            for item_b in targets_b:
+                t_a = item_a['target']
+                t_b = item_b['target']
+                
+                if t_a == 'systemic' or t_b == 'systemic': continue
 
-    def _analyze_dynamical(self, targets_a, targets_b):
-        return 0.0, [], []
+                # Проверяем совпадение мишеней (с учетом нечеткого поиска, если нормализатор это умеет, 
+                # но здесь пока точное совпадение после нормализации)
+                if t_a == t_b:
+                    role_a = item_a['role']
+                    role_b = item_b['role']
+                    
+                    # Синергия антагонистов/блокаторов (Оба блокируют одно и то же)
+                    if role_a in ['blocker', 'inhibitor'] and role_b in ['blocker', 'inhibitor']:
+                        s_val = 0.5 * min(item_a['strength'], item_b['strength'])
+                        score += s_val
+                        mechanisms.append(f"Двойная блокада мишени {t_a.upper()}")
+                        comments.append("Риск усиления побочных эффектов или чрезмерного угнетения функции")
+                    
+                    # Фармакодинамический конфликт (Один включает, другой выключает)
+                    elif (role_a == 'agonist' and role_b in ['blocker', 'antagonist']) or \
+                         (role_b == 'agonist' and role_a in ['blocker', 'antagonist']):
+                        s_val = 0.4
+                        score += s_val
+                        mechanisms.append(f"Антагонизм действия на {t_a.upper()}")
+                        comments.append("Препараты могут нейтрализовать терапевтический эффект друг друга")
+        
+        return score, mechanisms, comments
 
     def _analyze_toxicity(self, effects_a, effects_b, drug_a_name, drug_b_name):
-        return 0.0, [], []
+        score = 0.0
+        mechanisms = []
+        comments = []
+        
+        # Упрощенная логика: ищем одинаковые плохие слова
+        # Здесь лучше использовать нормализацию эффектов (например "bleeding" и "hemorrhage")
+        
+        # Множества слов
+        set_a = set()
+        for eff in effects_a:
+            set_a.update(self.normalizer.normalize(eff).split())
+            
+        set_b = set()
+        for eff in effects_b:
+            set_b.update(self.normalizer.normalize(eff).split())
+            
+        common_words = set_a.intersection(set_b)
+        
+        # Фильтруем общие слова, оставляем только значимые (очень простой фильтр)
+        dangerous_keywords = {
+            'кровотечение', 'bleeding', 'qt', 'arrhythmia', 'аритмия', 
+            'liver', 'печень', 'kidney', 'почки', 'sedation', 'сетация', 
+            'pressure', 'давление', 'hypotension', 'гипотензия'
+        }
+        
+        found_dangers = common_words.intersection(dangerous_keywords)
+        
+        if found_dangers:
+            score += 0.3
+            mechanisms.append(f"Суммирование побочных эффектов: {', '.join(found_dangers)}")
+            comments.append("Увеличение риска специфической токсичности")
+            
+        return score, mechanisms, comments
 
 
 WEIGHTS = {
@@ -296,7 +486,7 @@ class InteractionWindow(QWidget):
         self.db = database
         self.engine = InteractionEngine(self.db)
         self.setWindowTitle('Анализ взаимодействий лекарств')
-        self.resize(900, 600)
+        self.resize(1200, 600)
         self.setup_ui()
     
     def setup_ui(self) -> None:
