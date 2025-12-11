@@ -79,7 +79,6 @@ class InteractionAnalyzer:
     def __init__(self, normalizer: NormalizationStrategy = None):
         self.normalizer = normalizer or DEFAULT_NORMALIZER
 
-        # Словари для определения роли вещества
         self.ROLE_MAPPINGS = {
             'inhibitor': ['ингибитор', 'замедление', 'снижение', 'inhibitor'],
             'inducer': ['активатор', 'стимулятор', 'индуктор', 'inducer', 'activator'],
@@ -88,13 +87,12 @@ class InteractionAnalyzer:
             'agonist': ['агонист', 'миметик', 'agonist'],
         }
 
-        # Словарь весов для силы взаимодействия
         self.STRENGTH_WEIGHTS = {
             'слабый': 0.5,
             'weak': 0.5,
             'сильный': 1.5,
             'strong': 1.5,
-            'селективный': 1.0, # Селективность важна, но не всегда усиливает риск
+            'селективный': 1.0, 
         }
 
     def _parse_entry(self, raw_text: str) -> dict:
@@ -104,37 +102,30 @@ class InteractionAnalyzer:
         """
         text = str(raw_text).lower()
         
-        # 1. Определяем силу (вес)
         strength = 1.0
         for keyword, weight in self.STRENGTH_WEIGHTS.items():
             if keyword in text:
                 strength = weight
-                break # Берем первое совпадение модификатора
+                break 
         
-        # 2. Определяем роль
         role = 'unknown'
         for r_key, keywords in self.ROLE_MAPPINGS.items():
             if any(k in text for k in keywords):
                 role = r_key
                 break
         
-        # 3. Определяем мишень (удаляем служебные слова и оставляем название)
-        # Собираем все стоп-слова
         all_keywords = set()
         for k_list in self.ROLE_MAPPINGS.values():
             all_keywords.update(k_list)
         all_keywords.update(self.STRENGTH_WEIGHTS.keys())
-        all_keywords.add('эффект') # Слово-паразит в данном контексте
+        all_keywords.add('эффект')
         
-        # Удаляем ключевые слова из текста, чтобы осталось только название фермента/рецептора
         cleaned_text = text
         for k in all_keywords:
             cleaned_text = cleaned_text.replace(k, "")
         
-        # Нормализуем название мишени
         target_name = self.normalizer.normalize(cleaned_text)
         
-        # Если название слишком короткое после очистки, возможно это просто описание эффекта без мишени
         if len(target_name) < 2: 
             target_name = "systemic"
 
@@ -145,14 +136,12 @@ class InteractionAnalyzer:
         mechanisms = []
         comments = []
 
-        # Парсим данные один раз
         meta_a_parsed = [self._parse_entry(m) for m in pharm_a.get('metabolism', [])]
         meta_b_parsed = [self._parse_entry(m) for m in pharm_b.get('metabolism', [])]
         
         targ_a_parsed = [self._parse_entry(t) for t in pharm_a.get('targets', [])]
         targ_b_parsed = [self._parse_entry(t) for t in pharm_b.get('targets', [])]
 
-        # Запускаем анализы
         s_m, m_m, c_m = self._analyze_metabolic(meta_a_parsed, meta_b_parsed, drug_a_name, drug_b_name)
         score += s_m
         mechanisms.extend(m_m)
@@ -163,8 +152,6 @@ class InteractionAnalyzer:
         mechanisms.extend(m_d)
         comments.extend(c_d)
 
-        # Токсичность анализируем по старой логике (текстовое пересечение), 
-        # так как там обычно описания симптомов, а не мишеней
         effects_a = pharm_a.get('effects', [])
         effects_b = pharm_b.get('effects', [])
         s_t, m_t, c_t = self._analyze_toxicity(effects_a, effects_b, drug_a_name, drug_b_name)
@@ -179,8 +166,6 @@ class InteractionAnalyzer:
         mechanisms = []
         comments = []
         
-        # Создаем карту ферментов для быстрого поиска
-        # Структура: {'cyp3a4': [{'role': 'inhibitor', 'strength': 1.0, ...}], ...}
         def map_enzymes(parsed_list):
             mapping = {}
             for item in parsed_list:
@@ -202,8 +187,6 @@ class InteractionAnalyzer:
 
             for item_a in list_a:
                 for item_b in list_b:
-                    # Сценарий 1: Ингибирование метаболизма
-                    # А (Ингибитор) + Б (Субстрат)
                     if item_a['role'] == 'inhibitor' and item_b['role'] == 'substrate':
                         risk_score = 0.4 * item_a['strength']
                         score += risk_score
@@ -216,7 +199,6 @@ class InteractionAnalyzer:
                         mechanisms.append(f"{name_b} ингибирует {enz.upper()}, метаболизирующий {name_a}")
                         comments.append(f"Риск повышения концентрации {name_a} и токсичности")
                     
-                    # Сценарий 2: Индукция (ускорение) метаболизма
                     if item_a['role'] == 'inducer' and item_b['role'] == 'substrate':
                         risk_score = 0.3 * item_a['strength']
                         score += risk_score
@@ -236,7 +218,6 @@ class InteractionAnalyzer:
         mechanisms = []
         comments = []
         
-        # Сравниваем каждую цель с каждой
         for item_a in targets_a:
             for item_b in targets_b:
                 t_a = item_a['target']
@@ -244,20 +225,16 @@ class InteractionAnalyzer:
                 
                 if t_a == 'systemic' or t_b == 'systemic': continue
 
-                # Проверяем совпадение мишеней (с учетом нечеткого поиска, если нормализатор это умеет, 
-                # но здесь пока точное совпадение после нормализации)
                 if t_a == t_b:
                     role_a = item_a['role']
                     role_b = item_b['role']
                     
-                    # Синергия антагонистов/блокаторов (Оба блокируют одно и то же)
                     if role_a in ['blocker', 'inhibitor'] and role_b in ['blocker', 'inhibitor']:
                         s_val = 0.5 * min(item_a['strength'], item_b['strength'])
                         score += s_val
                         mechanisms.append(f"Двойная блокада мишени {t_a.upper()}")
                         comments.append("Риск усиления побочных эффектов или чрезмерного угнетения функции")
                     
-                    # Фармакодинамический конфликт (Один включает, другой выключает)
                     elif (role_a == 'agonist' and role_b in ['blocker', 'antagonist']) or \
                          (role_b == 'agonist' and role_a in ['blocker', 'antagonist']):
                         s_val = 0.4
@@ -272,10 +249,6 @@ class InteractionAnalyzer:
         mechanisms = []
         comments = []
         
-        # Упрощенная логика: ищем одинаковые плохие слова
-        # Здесь лучше использовать нормализацию эффектов (например "bleeding" и "hemorrhage")
-        
-        # Множества слов
         set_a = set()
         for eff in effects_a:
             set_a.update(self.normalizer.normalize(eff).split())
@@ -286,7 +259,6 @@ class InteractionAnalyzer:
             
         common_words = set_a.intersection(set_b)
         
-        # Фильтруем общие слова, оставляем только значимые (очень простой фильтр)
         dangerous_keywords = {
             'кровотечение', 'bleeding', 'qt', 'arrhythmia', 'аритмия', 
             'liver', 'печень', 'kidney', 'почки', 'sedation', 'сетация', 
