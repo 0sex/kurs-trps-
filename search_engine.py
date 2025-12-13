@@ -2,13 +2,24 @@ from typing import List, Dict, Tuple
 from abc import ABC, abstractmethod
 import difflib
 from database import Database
-
+import re
 
 class SubstanceNormalizer:    
     @staticmethod
     def normalize_substances(substance_str: str) -> List[str]:
-        substances = [s.strip() for s in substance_str.replace('+', ',').split(',') if s.strip()]
-        return [s.lower() for s in substances]
+            raw_substances = [s.strip() for s in substance_str.replace('+', ',').split(',') if s.strip()]
+            
+            cleaned_substances = []
+            for s in raw_substances:
+                s_lower = s.lower()
+                s_lower = re.sub(r'\(.*?\)', '', s_lower)
+                s_clean = re.sub(r'\b\d+[\.,]?\d*\s*(мг|г|кг|мл|мкг|ед|ме|mg|g|kg|ml|mcg|iu|%)?\b', '', s_lower)
+                s_clean = re.sub(r'\s+', ' ', s_clean).strip()
+                
+                if s_clean:
+                    cleaned_substances.append(s_clean)
+                    
+            return cleaned_substances
     
     @staticmethod
     def has_matching_substance(main_substance: str, analog_substance: str) -> bool:

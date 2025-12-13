@@ -1,5 +1,3 @@
-
-
 import sys
 from user_auth import UserAuth
 from interactions import InteractionWindow
@@ -13,8 +11,6 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtCore import Qt, QAbstractTableModel, pyqtSignal
 from PyQt5.QtGui import QFont, QPalette, QColor
 from typing import List, Dict, Optional, Tuple
-import csv
-import json
 from datetime import datetime
 
 class LoginDialog(QDialog):
@@ -26,7 +22,6 @@ class LoginDialog(QDialog):
         self.setup_ui()
         
     def setup_ui(self):
-        """Create UI elements."""
         layout = QFormLayout()
         layout.setSpacing(15)
         layout.setContentsMargins(20, 20, 20, 20)
@@ -87,19 +82,10 @@ class LoginDialog(QDialog):
         self.setLayout(layout)
     
     def get_credentials(self) -> tuple[str, str]:
-        """Get entered username and password."""
         return self.username_edit.text(), self.password_edit.text()
+
 class AddDrugDialog(QDialog):
-    """Dialog for adding new drugs to the database."""
-    
     def __init__(self, parent=None, existing_drug=None):
-        """
-        Initialize dialog.
-        
-        Args:
-            parent: Parent widget
-            existing_drug: Existing drug data for editing (optional)
-        """
         super().__init__(parent)
         self.existing_drug = existing_drug
         self.setWindowTitle("Редактировать препарат" if existing_drug else "Добавить препарат")
@@ -111,7 +97,6 @@ class AddDrugDialog(QDialog):
             self.load_drug_data()
     
     def setup_ui(self):
-        """Create UI elements."""
         layout = QFormLayout()
         layout.setSpacing(15)
         layout.setContentsMargins(20, 20, 20, 20)
@@ -191,7 +176,6 @@ class AddDrugDialog(QDialog):
         self.setLayout(layout)
     
     def load_drug_data(self):
-        """Load existing drug data into form."""
         if self.existing_drug:
             self.name_edit.setText(self.existing_drug['name'])
             self.substance_edit.setText(self.existing_drug['substance'])
@@ -202,7 +186,6 @@ class AddDrugDialog(QDialog):
             self.description_edit.setPlainText(self.existing_drug.get('description', '') or '')
     
     def get_data(self) -> Dict:
-        """Get form data as dictionary."""
         return {
             'name': self.name_edit.text().strip(),
             'substance': self.substance_edit.text().strip(),
@@ -212,20 +195,9 @@ class AddDrugDialog(QDialog):
             'contraindications': self.contraindications_edit.text().strip(),
             'description': self.description_edit.toPlainText().strip()
         }
-        
-
 
 class ComparisonDialog(QDialog):
-    """Dialog for comparing multiple drugs."""
-    
     def __init__(self, drugs: List[Dict], parent=None):
-        """
-        Initialize comparison dialog.
-        
-        Args:
-            drugs: List of drug dictionaries to compare
-            parent: Parent widget
-        """
         super().__init__(parent)
         self.drugs = drugs
         self.setWindowTitle("Сравнение препаратов")
@@ -234,7 +206,6 @@ class ComparisonDialog(QDialog):
         self.setup_ui()
     
     def setup_ui(self):
-        """Create UI elements."""
         layout = QVBoxLayout()
         
         self.table = QTableWidget()
@@ -296,12 +267,8 @@ class ComparisonDialog(QDialog):
         
         self.setLayout(layout)
 
-
 class MainWindow(QMainWindow):
-    """Main application window."""
-    
     def __init__(self):
-        """Initialize main window."""
         super().__init__()
         self.init_database()
         self.auth = UserAuth()
@@ -313,7 +280,6 @@ class MainWindow(QMainWindow):
         self.update_ui_for_role()
         
     def show_login(self) -> bool:
-        """Show login dialog and handle authentication."""
         dialog = LoginDialog(self)
         if dialog.exec_() == QDialog.Accepted:
             username, password = dialog.get_credentials()
@@ -326,7 +292,6 @@ class MainWindow(QMainWindow):
         return False
         
     def toggle_admin_login(self):
-        """Handle admin login/logout."""
         if not self.auth.is_admin():
             dialog = LoginDialog(self)
             if dialog.exec_() == QDialog.Accepted:
@@ -345,7 +310,6 @@ class MainWindow(QMainWindow):
             self.update_ui_for_role()
     
     def update_ui_for_role(self):
-        """Update UI elements based on user role."""
         is_admin = self.auth.is_admin()
         role_text = "администратор" if is_admin else "пользователь"
         
@@ -361,7 +325,6 @@ class MainWindow(QMainWindow):
         self.statusBar().showMessage(f"Режим работы: {role_text}")
     
     def init_database(self):
-        """Initialize database and populate sample data."""
         from database import Database
         from search_engine import SearchEngine
         
@@ -375,7 +338,6 @@ class MainWindow(QMainWindow):
             pass
     
     def setup_ui(self):
-        """Create and setup UI elements."""
         self.setWindowTitle("Поиск аналогов лекарственных препаратов")
         self.setMinimumSize(1200, 700)
         
@@ -618,7 +580,6 @@ class MainWindow(QMainWindow):
             }
         """)
         
-        # Create central widget with modern styling and gradient background
         central_widget = QWidget()
         central_widget.setStyleSheet("""
             QWidget {
@@ -795,59 +756,7 @@ class MainWindow(QMainWindow):
             }
         """)
         
-        self.export_csv_btn = QPushButton("Экспорт в CSV")
-        self.export_csv_btn.clicked.connect(self.export_to_csv)
-        self.export_csv_btn.setEnabled(False)
-        self.export_csv_btn.setStyleSheet("""
-            QPushButton {
-                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                    stop:0 #17a2b8, stop:1 #138496);
-                color: white;
-                border: none;
-                padding: 10px 20px;
-                border-radius: 6px;
-                font-weight: bold;
-                font-size: 10pt;
-            }
-            QPushButton:hover {
-                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                    stop:0 #27b2c8, stop:1 #2384a6);
-            }
-            QPushButton:disabled {
-                background-color: #2a2a2a;
-                color: #666666;
-                border: 1px solid #333333;
-            }
-        """)
-        
-        self.export_json_btn = QPushButton("Экспорт в JSON")
-        self.export_json_btn.clicked.connect(self.export_to_json)
-        self.export_json_btn.setEnabled(False)
-        self.export_json_btn.setStyleSheet("""
-            QPushButton {
-                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                    stop:0 #ffc107, stop:1 #e0a800);
-                color: #1e1e1e;
-                border: none;
-                padding: 10px 20px;
-                border-radius: 6px;
-                font-weight: bold;
-                font-size: 10pt;
-            }
-            QPushButton:hover {
-                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                    stop:0 #ffd107, stop:1 #f0b800);
-            }
-            QPushButton:disabled {
-                background-color: #2a2a2a;
-                color: #666666;
-                border: 1px solid #333333;
-            }
-        """)
-        
         action_buttons_layout.addWidget(self.compare_btn)
-        action_buttons_layout.addWidget(self.export_csv_btn)
-        action_buttons_layout.addWidget(self.export_json_btn)
         action_buttons_layout.addStretch()
         
         results_layout.addLayout(action_buttons_layout)
@@ -868,14 +777,14 @@ class MainWindow(QMainWindow):
         self.results_table.horizontalHeader().setSectionResizeMode(QHeaderView.Interactive)
         
         self.results_table.setWordWrap(True)
-        self.results_table.setColumnWidth(0, 60)  # Выбор
-        self.results_table.setColumnWidth(1, 180)  # Название
-        self.results_table.setColumnWidth(2, 200)  # Действующее вещество
-        self.results_table.setColumnWidth(3, 150)  # Форма
-        self.results_table.setColumnWidth(4, 180)  # Производитель
-        self.results_table.setColumnWidth(5, 200)  # Противопоказания
-        self.results_table.setColumnWidth(6, 350)  # Описание (увеличена ширина)
-        self.results_table.setColumnWidth(7, 100)  # Цена
+        self.results_table.setColumnWidth(0, 60)
+        self.results_table.setColumnWidth(1, 180)
+        self.results_table.setColumnWidth(2, 200)
+        self.results_table.setColumnWidth(3, 150)
+        self.results_table.setColumnWidth(4, 180)
+        self.results_table.setColumnWidth(5, 200)
+        self.results_table.setColumnWidth(6, 350)
+        self.results_table.setColumnWidth(7, 100)
         self.results_table.setSelectionBehavior(QTableWidget.SelectRows)
         self.results_table.setEditTriggers(QTableWidget.NoEditTriggers)
         self.results_table.setAlternatingRowColors(True)
@@ -889,7 +798,6 @@ class MainWindow(QMainWindow):
         self.statusBar().showMessage("Готов к работе")
     
     def create_menu_bar(self):
-        """Create application menu bar."""
         menubar = self.menuBar()
         
         file_menu = menubar.addMenu("Файл")
@@ -930,7 +838,6 @@ class MainWindow(QMainWindow):
         analysis_menu.addAction(interaction_action)
 
     def open_interaction_window(self):
-        """Open the drug interaction analysis window."""
         try:
             win = InteractionWindow(self.database, parent=self)
             win.show()
@@ -939,7 +846,6 @@ class MainWindow(QMainWindow):
             QMessageBox.critical(self, "Ошибка", f"Не удалось открыть окно анализа: {e}")
     
     def load_filter_options(self):
-        """Load filter options from database."""
         forms = self.database.get_all_forms()
         manufacturers = self.database.get_all_manufacturers()
         contraindications = self.database.get_all_contraindications()
@@ -957,7 +863,6 @@ class MainWindow(QMainWindow):
         self.contraindication_filter.addItems(contraindications)
     
     def get_filter_values(self):
-        """Get current filter values from UI."""
         form = self.form_filter.currentText().strip() if self.form_filter.currentText().strip() else None
         manufacturer = self.manufacturer_filter.currentText().strip() if self.manufacturer_filter.currentText().strip() else None
         min_price = self.min_price_filter.value() if self.min_price_filter.value() > 0 else None
@@ -966,11 +871,9 @@ class MainWindow(QMainWindow):
         return form, manufacturer, min_price, max_price, exclude_contraindication
     
     def apply_filters(self):
-        """Apply filters to all drugs and display results."""
         try:
             form, manufacturer, min_price, max_price, exclude_contraindication = self.get_filter_values()
             
-            # Get filtered drugs from database
             filtered_drugs = self.database.get_drugs_by_filters(
                 form, manufacturer, min_price, max_price, exclude_contraindication
             )
@@ -987,14 +890,12 @@ class MainWindow(QMainWindow):
             self.statusBar().showMessage("Ошибка применения фильтров")
     
     def load_all_drugs(self):
-        """Load all drugs from database and apply filters."""
         self.apply_filters()
         
         self.results_table.setColumnWidth(6, 350)
         self.results_table.resizeRowsToContents()
     
     def search_analogs(self):
-        """Perform analog search based on input and filters."""
         query = self.search_input.text().strip()
         
         if not query:
@@ -1022,7 +923,6 @@ class MainWindow(QMainWindow):
             self.statusBar().showMessage("Ошибка выполнения поиска")
     
     def display_results(self, results: List[Tuple[Dict, float]]):
-        """Display search results in table."""
         self.results_table.setSortingEnabled(False)
         self.results_table.setRowCount(len(results))
         
@@ -1050,7 +950,7 @@ class MainWindow(QMainWindow):
             description_item.setTextAlignment(Qt.AlignLeft | Qt.AlignTop)
             self.results_table.setItem(row, 6, description_item)
             metrics = self.results_table.fontMetrics()
-            description_width = self.results_table.columnWidth(6) - 20  # Account for padding
+            description_width = self.results_table.columnWidth(6) - 20
             text_height = metrics.boundingRect(
                 0, 0, description_width, 1000,
                 Qt.TextWordWrap | Qt.AlignLeft | Qt.AlignTop,
@@ -1078,21 +978,17 @@ class MainWindow(QMainWindow):
         self.results_table.setSortingEnabled(True)
         
         self.compare_btn.setEnabled(len(results) > 0)
-        self.export_csv_btn.setEnabled(len(results) > 0)
-        self.export_json_btn.setEnabled(len(results) > 0)
+
     
     def clear_filters(self):
-        """Clear all filters and reload all drugs."""
         self.form_filter.setCurrentText("")
         self.manufacturer_filter.setCurrentText("")
         self.min_price_filter.setValue(0.0)
         self.max_price_filter.setValue(99999.0)
         self.contraindication_filter.setCurrentText("")
-        # Apply filters after clearing (will show all drugs)
         self.apply_filters()
     
     def get_selected_drug_ids(self) -> List[int]:
-        """Get IDs of selected drugs in results table."""
         selected_ids = []
         for row in range(self.results_table.rowCount()):
             checkbox = self.results_table.item(row, 0)
@@ -1105,7 +1001,6 @@ class MainWindow(QMainWindow):
         return selected_ids
     
     def compare_selected(self):
-        """Compare selected drugs."""
         selected_ids = self.get_selected_drug_ids()
         
         if len(selected_ids) < 2:
@@ -1116,83 +1011,8 @@ class MainWindow(QMainWindow):
         drugs = self.search_engine.compare_drugs(selected_ids)
         dialog = ComparisonDialog(drugs, self)
         dialog.exec_()
-    
-    def export_to_csv(self):
-        """Export results to CSV file."""
-        filename, _ = QFileDialog.getSaveFileName(
-            self, "Экспорт в CSV", "", "CSV Files (*.csv)"
-        )
-        
-        if not filename:
-            return
-        
-        try:
-            with open(filename, 'w', newline='', encoding='utf-8') as f:
-                writer = csv.writer(f)
-                writer.writerow([
-                    "Название", "Действующее вещество", "Форма выпуска",
-                    "Производитель", "Противопоказания", "Описание", "Цена"
-                ])
-                
-                for row in range(self.results_table.rowCount()):
-                    name_item = self.results_table.item(row, 1)
-                    if name_item:
-                        writer.writerow([
-                            self.results_table.item(row, 1).text(),
-                            self.results_table.item(row, 2).text(),
-                            self.results_table.item(row, 3).text(),
-                            self.results_table.item(row, 4).text(),
-                            self.results_table.item(row, 5).text(),
-                            self.results_table.item(row, 6).text(),
-                            self.results_table.item(row, 7).text()
-                        ])
-            
-            QMessageBox.information(self, "Успех", 
-                                  f"Данные успешно экспортированы в {filename}")
-        except Exception as e:
-            QMessageBox.critical(self, "Ошибка", f"Ошибка экспорта: {str(e)}")
-    
-    def export_to_json(self):
-        """Export results to JSON file."""
-        filename, _ = QFileDialog.getSaveFileName(
-            self, "Экспорт в JSON", "", "JSON Files (*.json)"
-        )
-        
-        if not filename:
-            return
-        
-        try:
-            data = {
-                'export_date': datetime.now().isoformat(),
-                'drugs': []
-            }
-            
-            for row in range(self.results_table.rowCount()):
-                name_item = self.results_table.item(row, 1)
-                if name_item:
-                    drug_id = name_item.data(Qt.UserRole)
-                    drug = self.database.get_drug_by_id(drug_id)
-                    if drug:
-                        data['drugs'].append({
-                            'name': drug['name'],
-                            'substance': drug['substance'],
-                            'form': drug['form'],
-                            'manufacturer': drug['manufacturer'],
-                            'price': drug['price'],
-                            'contraindications': drug.get('contraindications', '') or '',
-                            'description': drug.get('description', '') or ''
-                        })
-            
-            with open(filename, 'w', encoding='utf-8') as f:
-                json.dump(data, f, ensure_ascii=False, indent=2)
-            
-            QMessageBox.information(self, "Успех", 
-                                  f"Данные успешно экспортированы в {filename}")
-        except Exception as e:
-            QMessageBox.critical(self, "Ошибка", f"Ошибка экспорта: {str(e)}")
-    
+
     def add_drug(self):
-        """Show add drug dialog."""
         if not self.auth.is_admin():
             QMessageBox.warning(self, "Ошибка", "Только администратор может добавлять препараты")
             return
@@ -1200,7 +1020,6 @@ class MainWindow(QMainWindow):
         if dialog.exec_() == QDialog.Accepted:
             data = dialog.get_data()
             
-            # Validate (contraindications can be empty)
             if not data['name'] or not data['substance'] or not data['form'] or not data['manufacturer']:
                 QMessageBox.warning(self, "Внимание", 
                                   "Заполните все обязательные поля")
@@ -1214,23 +1033,20 @@ class MainWindow(QMainWindow):
                 )
                 QMessageBox.information(self, "Успех", "Препарат успешно добавлен")
                 self.load_filter_options()
-                self.load_all_drugs()  # Refresh the list
+                self.load_all_drugs()
                 self.statusBar().showMessage(f"Добавлен препарат ID: {drug_id}")
             except Exception as e:
                 QMessageBox.critical(self, "Ошибка", f"Ошибка добавления: {str(e)}")
     
     def edit_drug(self):
-        """Show edit drug dialog."""
         if not self.auth.is_admin():
             QMessageBox.warning(self, "Ошибка", "Только администратор может редактировать препараты")
             return
-        # Get currently selected drug from results or show list
         if self.results_table.rowCount() == 0:
             QMessageBox.warning(self, "Внимание", 
                               "Нет данных для редактирования. Выполните поиск.")
             return
         
-        # Get first selected row or first row
         selected_row = -1
         for row in range(self.results_table.rowCount()):
             if self.results_table.item(row, 0).checkState() == Qt.Checked:
@@ -1255,7 +1071,6 @@ class MainWindow(QMainWindow):
         if dialog.exec_() == QDialog.Accepted:
             data = dialog.get_data()
             
-            # Validate (contraindications can be empty)
             if not data['name'] or not data['substance'] or not data['form'] or not data['manufacturer']:
                 QMessageBox.warning(self, "Внимание", "Заполните все обязательные поля")
                 return
@@ -1268,13 +1083,12 @@ class MainWindow(QMainWindow):
                 )
                 QMessageBox.information(self, "Успех", "Препарат успешно обновлен")
                 self.load_filter_options()
-                self.load_all_drugs()  # Refresh the list
+                self.load_all_drugs()
                 self.statusBar().showMessage("Препарат обновлен")
             except Exception as e:
                 QMessageBox.critical(self, "Ошибка", f"Ошибка обновления: {str(e)}")
     
     def delete_drug(self):
-        """Delete selected drug."""
         if not self.auth.is_admin():
             QMessageBox.warning(self, "Ошибка", "Только администратор может удалять препараты")
             return
@@ -1283,7 +1097,6 @@ class MainWindow(QMainWindow):
                               "Нет данных для удаления. Выполните поиск.")
             return
         
-        # Get first selected row or first row
         selected_row = -1
         for row in range(self.results_table.rowCount()):
             if self.results_table.item(row, 0).checkState() == Qt.Checked:
@@ -1300,7 +1113,6 @@ class MainWindow(QMainWindow):
         drug_id = name_item.data(Qt.UserRole)
         drug_name = name_item.text()
         
-        # Confirm deletion
         reply = QMessageBox.question(
             self, "Подтверждение", 
             f"Удалить препарат '{drug_name}'?",
@@ -1312,48 +1124,35 @@ class MainWindow(QMainWindow):
                 self.database.delete_drug(drug_id)
                 QMessageBox.information(self, "Успех", "Препарат успешно удален")
                 self.load_filter_options()
-                self.load_all_drugs()  # Refresh the list after deletion
+                self.load_all_drugs()
                 self.statusBar().showMessage("Препарат удален")
             except Exception as e:
                 QMessageBox.critical(self, "Ошибка", f"Ошибка удаления: {str(e)}")
-    
-
 
 def main():
-    """Main entry point for the application."""
     app = QApplication(sys.argv)
     
-    # Set application style
     app.setStyle('Fusion')
     
-    # Apply modern dark color palette
     palette = QPalette()
-    # Window colors
     palette.setColor(QPalette.Window, QColor(30, 30, 30))
     palette.setColor(QPalette.WindowText, QColor(224, 224, 224))
-    # Base colors
     palette.setColor(QPalette.Base, QColor(45, 45, 45))
     palette.setColor(QPalette.AlternateBase, QColor(42, 42, 42))
-    # Text colors
     palette.setColor(QPalette.Text, QColor(224, 224, 224))
     palette.setColor(QPalette.BrightText, QColor(255, 255, 255))
-    # Button colors
     palette.setColor(QPalette.Button, QColor(45, 45, 45))
     palette.setColor(QPalette.ButtonText, QColor(224, 224, 224))
-    # Tooltip colors
     palette.setColor(QPalette.ToolTipBase, QColor(45, 45, 45))
     palette.setColor(QPalette.ToolTipText, QColor(224, 224, 224))
-    # Link and highlight colors
     palette.setColor(QPalette.Link, QColor(74, 158, 255))
     palette.setColor(QPalette.Highlight, QColor(74, 158, 255))
     palette.setColor(QPalette.HighlightedText, QColor(255, 255, 255))
-    # Disabled colors
     palette.setColor(QPalette.Disabled, QPalette.WindowText, QColor(102, 102, 102))
     palette.setColor(QPalette.Disabled, QPalette.Text, QColor(102, 102, 102))
     palette.setColor(QPalette.Disabled, QPalette.ButtonText, QColor(102, 102, 102))
     app.setPalette(palette)
     
-    # Set modern application font
     font = QFont("Segoe UI", 10)
     font.setStyleHint(QFont.SansSerif)
     app.setFont(font)
@@ -1363,7 +1162,5 @@ def main():
     
     sys.exit(app.exec_())
 
-
 if __name__ == "__main__":
     main()
-
