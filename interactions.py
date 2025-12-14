@@ -1,7 +1,6 @@
 from typing import Dict, List, Tuple, Any
 from datetime import datetime
 from abc import ABC, abstractmethod
-import csv
 import difflib
 import re
 from PyQt5.QtWidgets import (
@@ -92,21 +91,17 @@ class InteractionAnalyzer:
             'weak': 0.5,
             'сильный': 1.5,
             'strong': 1.5,
-            'селективный': 1.0, 
+            'селективный': 1.0,
         }
 
     def _parse_entry(self, raw_text: str) -> dict:
-        """
-        Разбирает строку фармакологии на компоненты.
-        Пример: "слабый ингибитор CYP3A4" -> {'target': 'cyp3a4', 'role': 'inhibitor', 'strength': 0.5}
-        """
         text = str(raw_text).lower()
         
         strength = 1.0
         for keyword, weight in self.STRENGTH_WEIGHTS.items():
             if keyword in text:
                 strength = weight
-                break 
+                break
         
         role = 'unknown'
         for r_key, keywords in self.ROLE_MAPPINGS.items():
@@ -165,7 +160,7 @@ class InteractionAnalyzer:
         score = 0.0
         mechanisms = []
         comments = []
-        
+
         def map_enzymes(parsed_list):
             mapping = {}
             for item in parsed_list:
@@ -180,36 +175,33 @@ class InteractionAnalyzer:
         common_enzymes = set(map_a.keys()) & set(map_b.keys())
         
         for enz in common_enzymes:
-            if enz == 'systemic': continue # Пропускаем общие описания
+            if enz == 'systemic': continue 
 
             list_a = map_a[enz]
             list_b = map_b[enz]
 
             for item_a in list_a:
-                for item_b in list_b:
-                    if item_a['role'] == 'inhibitor' and item_b['role'] == 'substrate':
-                        risk_score = 0.4 * item_a['strength']
-                        score += risk_score
-                        mechanisms.append(f"{name_a} ингибирует {enz.upper()}, метаболизирующий {name_b}")
-                        comments.append(f"Риск повышения концентрации {name_b} и токсичности")
+                for item_b in list_b:                    
+                    match (item_a['role'], item_b['role']):
+                        case ('inhibitor', 'substrate'):
+                            score += 0.4 * item_a['strength']
+                            mechanisms.append(f"{name_a} ингибирует {enz.upper()}, метаболизирующий {name_b}")
+                            comments.append(f"Риск повышения концентрации {name_b} и токсичности")
+                            
+                        case ('substrate', 'inhibitor'):
+                            score += 0.4 * item_b['strength']
+                            mechanisms.append(f"{name_b} ингибирует {enz.upper()}, метаболизирующий {name_a}")
+                            comments.append(f"Риск повышения концентрации {name_a} и токсичности")
+                            
+                        case ('inducer', 'substrate'):
+                            score += 0.3 * item_a['strength']
+                            mechanisms.append(f"{name_a} стимулирует {enz.upper()}, разрушающий {name_b}")
+                            comments.append(f"Риск снижения эффективности {name_b}")
 
-                    elif item_b['role'] == 'inhibitor' and item_a['role'] == 'substrate':
-                        risk_score = 0.4 * item_b['strength']
-                        score += risk_score
-                        mechanisms.append(f"{name_b} ингибирует {enz.upper()}, метаболизирующий {name_a}")
-                        comments.append(f"Риск повышения концентрации {name_a} и токсичности")
-                    
-                    if item_a['role'] == 'inducer' and item_b['role'] == 'substrate':
-                        risk_score = 0.3 * item_a['strength']
-                        score += risk_score
-                        mechanisms.append(f"{name_a} стимулирует {enz.upper()}, разрушающий {name_b}")
-                        comments.append(f"Риск снижения эффективности {name_b}")
-
-                    elif item_b['role'] == 'inducer' and item_a['role'] == 'substrate':
-                        risk_score = 0.3 * item_b['strength']
-                        score += risk_score
-                        mechanisms.append(f"{name_b} стимулирует {enz.upper()}, разрушающий {name_a}")
-                        comments.append(f"Риск снижения эффективности {name_a}")
+                        case ('substrate', 'inducer'):
+                            score += 0.3 * item_b['strength']
+                            mechanisms.append(f"{name_b} стимулирует {enz.upper()}, разрушающий {name_a}")
+                            comments.append(f"Риск снижения эффективности {name_a}")
 
         return score, mechanisms, comments
 
@@ -332,30 +324,40 @@ class InteractionEngine:
         return result
     
     def _get_fallback_mechanisms(self, drug_a_data: Dict, drug_b_data: Dict) -> List[str]:
-        mechanisms = []
-        drug_a_name = drug_a_data['drug']['name']
-        drug_b_name = drug_b_data['drug']['name']
-        
-        if drug_a_data['targets']:
-            mechanisms.append(f"{drug_a_name}: {len(drug_a_data['targets'])} целей")
-        if drug_a_data['metabolism']:
-            mechanisms.append(f"{drug_a_name}: {len(drug_a_data['metabolism'])} ферментов")
-        if drug_a_data['effects']:
-            mechanisms.append(f"{drug_a_name}: {len(drug_a_data['effects'])} известно побочных эффектов")
-        
-        if drug_b_data['targets']:
-            mechanisms.append(f"{drug_b_name}: {len(drug_b_data['targets'])} целей")
-        if drug_b_data['metabolism']:
-            mechanisms.append(f"{drug_b_name}: {len(drug_b_data['metabolism'])} ферментов")
-        if drug_b_data['effects']:
-            mechanisms.append(f"{drug_b_name}: {len(drug_b_data['effects'])} известно побочных эффектов")
-        
-        if mechanisms:
-            mechanisms.insert(0, f"Возможное взаимодействие: {drug_a_name} + {drug_b_name} (оба фармакологически активны)")
-        else:
-            mechanisms.append('Нет особого фармакологического профиля для взаимодействия')
-        
-        return mechanisms
+            mechanisms = []
+            name_a = drug_a_data['drug']['name']
+            name_b = drug_b_data['drug']['name']
+
+            drugs_to_check = [
+                (name_a, drug_a_data),
+                (name_b, drug_b_data)
+            ]
+
+            for name, data in drugs_to_check:
+                for category in ['targets', 'metabolism', 'effects']:
+                    items = data.get(category)
+                    if not items:
+                        continue
+                    match category:
+                        case 'targets':
+                            description = "целей"
+                        case 'metabolism':
+                            description = "ферментов"
+                        case 'effects':
+                            description = "известно побочных эффектов"
+                        case _:
+                            continue
+
+                    mechanisms.append(f"{name}: {len(items)} {description}")
+
+            match mechanisms:
+                case []:
+                    mechanisms.append('Нет особого фармакологического профиля для взаимодействия')
+                case _:
+                    header = f"Возможное взаимодействие: {name_a} + {name_b} (оба фармакологически активны)"
+                    mechanisms.insert(0, header)
+            
+            return mechanisms
     
     def _determine_level(self, score: float) -> str:
         if score < 0.3:
@@ -438,19 +440,6 @@ class InteractionResultsTable:
         else:
             return QColor(160, 220, 160)
     
-    def export_to_csv(self, filename: str) -> None:
-        with open(filename, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.writer(f)
-            writer.writerow(['Drug A', 'Drug B', 'Risk', 'Mechanisms', 'Comments'])
-            for r in range(self.table.rowCount()):
-                writer.writerow([
-                    self.table.item(r, 0).text(),
-                    self.table.item(r, 1).text(),
-                    self.table.item(r, 2).text(),
-                    self.table.item(r, 3).text(),
-                    self.table.item(r, 4).text()
-                ])
-
 
 class InteractionWindow(QWidget):    
     def __init__(self, database: Database, parent=None):
@@ -494,10 +483,6 @@ class InteractionWindow(QWidget):
         analyze_btn.clicked.connect(self.on_analyze)
         left_layout.addWidget(analyze_btn)
         
-        export_btn = QPushButton('Экспорт в CSV')
-        export_btn.clicked.connect(self.on_export_csv)
-        left_layout.addWidget(export_btn)
-        
         close_btn = QPushButton('Закрыть')
         close_btn.clicked.connect(self.close)
         left_layout.addWidget(close_btn)
@@ -514,80 +499,3 @@ class InteractionWindow(QWidget):
             self.results_table.display(results)
         except Exception as e:
             QMessageBox.critical(self, 'Ошибка', f'Ошибка анализа: {e}')
-    
-    def on_export_csv(self) -> None:
-        if self.results_table_widget.rowCount() == 0:
-            QMessageBox.information(self, 'Информация', 'Нет данных для экспорта')
-            return
-        
-        filename, _ = QFileDialog.getSaveFileName(self, 'Экспорт результатов', '', 'CSV Files (*.csv)')
-        if not filename:
-            return
-        
-        try:
-            self.results_table.export_to_csv(filename)
-            QMessageBox.information(self, 'Успех', f'Файл сохранён: {filename}')
-        except Exception as e:
-            QMessageBox.critical(self, 'Ошибка', f'Ошибка при сохранении: {e}')
-
-
-
-class InteractionReporter:
-    def __init__(self, engine: InteractionEngine):
-        self.engine = engine
-    
-    def generate_report(self, output_file: str = 'interaction_report.csv') -> Dict[str, int]:
-        db = self.engine.db
-        drugs = db.get_all_drugs()
-        drug_ids = [d['id'] for d in drugs]
-        
-        results = []
-        total_analyzed = 0
-        
-        for i in range(len(drug_ids)):
-            for j in range(i + 1, len(drug_ids)):
-                try:
-                    res = self.engine.analyze_interaction(drug_ids[i], drug_ids[j])
-                    total_analyzed += 1
-                    
-                    if res.get('level') and res['level'] != 'Низкий':
-                        results.append(res)
-                except Exception:
-                    continue
-        
-        results.sort(key=lambda r: r['score'], reverse=True)
-        
-        self._write_results_to_csv(output_file, results)
-        
-        return {
-            'total_analyzed': total_analyzed,
-            'significant_found': len(results),
-            'output_file': output_file
-        }
-    
-    def _write_results_to_csv(self, filename: str, results: List[Dict]) -> None:
-        with open(filename, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.writer(f)
-            writer.writerow(['Drug A', 'Drug B', 'Score', 'Level', 'Mechanisms', 'Comments', 'Timestamp'])
-            for r in results:
-                mechanisms_text = '; '.join(r.get('mechanisms') or [])
-                writer.writerow([
-                    r.get('drug_a'),
-                    r.get('drug_b'),
-                    r.get('score'),
-                    r.get('level'),
-                    mechanisms_text,
-                    r.get('comments'),
-                    r.get('timestamp')
-                ])
-
-
-def run_interaction_report():
-    db = Database()
-    engine = InteractionEngine(db)
-    reporter = InteractionReporter(engine)
-    report = reporter.generate_report()
-    
-    print(f"Report generated: {report['output_file']}")
-    print(f"Total pairs analyzed: {report['total_analyzed']}")
-    print(f"Significant interactions found: {report['significant_found']}")
